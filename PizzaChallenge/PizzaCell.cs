@@ -15,5 +15,6 @@ namespace PizzaChallenge
         public int Row { get;}
         public int Col { get;}
         public char Ingredient { get;}
+        public int? Slice { get; set; }
     }
 }

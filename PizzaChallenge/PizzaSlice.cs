@@ -6,13 +6,12 @@ namespace PizzaChallenge
 {
     public class PizzaSlice
     {
-        public int StartRow;
-        public int StartCol;
-
-        public List<PizzaCell> PizzaCells;
+        private List<PizzaCell> pizzaCells;
         public PizzaSlice()
         {
             PizzaCells = new List<PizzaCell>();
         }
+
+        public List<PizzaCell> PizzaCells { get => pizzaCells; set => pizzaCells = value; }
     }
 }

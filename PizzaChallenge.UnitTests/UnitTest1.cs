@@ -6,7 +6,7 @@ namespace PizzaChallenge.UnitTests
     public class UnitTest1
     {
         [Fact]
-        public void Test1()
+        public void PlotPizza()
         {
             PizzaDefinition pizzaDefinition=new PizzaDefinition();
             //pizzaDefinition.Parse("Samples/a_example.in").Wait();
@@ -15,6 +15,21 @@ namespace PizzaChallenge.UnitTests
             var pizza = pizzaDefinition.Pizza;
             var pizzaPlotter = new PizzaPlotter();
             var result = pizzaPlotter.Plot(pizzaDefinition);
+        }
+
+        [Fact]
+        public void PlotPizzaSlices()
+        {
+            PizzaDefinition pizzaDefinition = new PizzaDefinition();
+            //pizzaDefinition.Parse("Samples/a_example.in").Wait();
+            pizzaDefinition.Parse("Samples/c_mini_4.in").Wait();
+            var requirements = pizzaDefinition.Requirements;
+            var pizza = pizzaDefinition.Pizza;
+            var pizzaPlotter = new PizzaPlotter();
+            var result = pizzaPlotter.Plot(pizzaDefinition);
+
+            var slicedPizza = pizzaDefinition.Pizza.Slice();
+
         }
     }
 }
