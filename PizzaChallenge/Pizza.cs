@@ -20,9 +20,9 @@ namespace PizzaChallenge
             return _pizzaTable[row,col].PizzaCell;
         }
 
-        public PizzaCell[,] GetPizzaArray()
+        public PizzaNode GetRootPizzaNode()
         {
-           return _pizzaTable.Clone() as PizzaCell[,];
+            return _pizzaTable[0,0];
         }
 
         public async Task ParseAsync(StreamReader reader)
