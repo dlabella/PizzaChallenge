@@ -21,15 +21,10 @@ namespace PizzaChallenge.UnitTests
         public void PlotPizzaSlices()
         {
             PizzaDefinition pizzaDefinition = new PizzaDefinition();
-            //pizzaDefinition.Parse("Samples/a_example.in").Wait();
-            pizzaDefinition.Parse("Samples/c_mini_4.in").Wait();
-            var requirements = pizzaDefinition.Requirements;
-            var pizza = pizzaDefinition.Pizza;
-            var pizzaPlotter = new PizzaPlotter();
-            var result = pizzaPlotter.Plot(pizzaDefinition);
-
+            pizzaDefinition.Parse("Samples/a_example.in").Wait();
             var slicedPizza = pizzaDefinition.Pizza.Slice();
-
+            var pizzaPlotter = new PizzaPlotter();
+            var result = pizzaDefinition.Pizza.PlotSliceSteps();
         }
     }
 }

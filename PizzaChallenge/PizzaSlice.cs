@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace PizzaChallenge
 {
@@ -13,5 +14,17 @@ namespace PizzaChallenge
         }
 
         public List<PizzaCell> PizzaCells { get => pizzaCells; set => pizzaCells = value; }
+
+        public int Area
+        {
+            get
+            {
+                var min = pizzaCells.Min();
+
+                var max = pizzaCells.Max();
+
+                return (max.Col - min.Col + 1) * (max.Row - min.Row + 1);
+            }
+        }
     }
 }

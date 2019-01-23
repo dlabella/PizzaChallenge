@@ -14,6 +14,8 @@ namespace PizzaChallenge
         private int _colIdx;
         private int _distincIngredients;
         private int _sliceCount;
+        private static PizzaPlotter _plotter = new PizzaPlotter();
+
         public Pizza(PizzaRequirements requirements)
         {
             _requirements = requirements;
@@ -41,8 +43,17 @@ namespace PizzaChallenge
             return null;
         }
 
+        public int Rows => _pizzaTable.GetLength(0);
+        public int Columns => _pizzaTable.GetLength(1);
+
         public Pizza Slice()
         {
+            return SliceInternal(this);
+        }
+
+        private Pizza SliceInternal(Pizza sourcePizza)
+        {
+            _plotter.EnqueuePlot(this);
             var slices = GetFilteredSlices();
             if (slices == null || slices.Count == 0)
             {
@@ -52,14 +63,14 @@ namespace PizzaChallenge
                 }
                 else
                 {
+                    _plotter.EnqueuePlot(this);
                     return this;
                 }
             }
             foreach (var slice in slices)
             {
-                var newPizza = this.CloneWithNewSlice(slice);
-                var solution = newPizza.Slice();
-
+                var newPizza = sourcePizza.CloneWithNewSlice(slice);
+                var solution = newPizza.SliceInternal(newPizza);
                 if (solution != null)
                 {
                     return solution;
@@ -67,6 +78,11 @@ namespace PizzaChallenge
             }
 
             return null;
+        }
+
+        public string PlotSliceSteps()
+        {
+            return _plotter.DequeuePlot();
         }
 
         private Pizza CloneWithNewSlice(PizzaSlice slice)
@@ -132,8 +148,6 @@ namespace PizzaChallenge
                 return null;
             }
 
-            int cellCount = 0;
-
             //Vertical
             for (var row = cellStart.Row; row < maxRows; row++)
             {
@@ -160,7 +174,7 @@ namespace PizzaChallenge
                 }
             }
 
-            return returnValue;
+            return returnValue.OrderByDescending(x => x.Area).ToList();
         }
 
         public List<PizzaSlice> GetFilteredSlices()
@@ -201,7 +215,17 @@ namespace PizzaChallenge
             returnValue._rowIdx = this._rowIdx;
             returnValue._colIdx = this._colIdx;
             returnValue._distincIngredients = this._distincIngredients;
-            returnValue._pizzaTable = this._pizzaTable.Clone() as PizzaCell[,];
+            returnValue._pizzaTable = new PizzaCell[this.Rows, this.Columns];
+
+            for(var row = 0; row < this.Rows; row++)
+            {
+                for (var column = 0; column < this.Columns; column++)
+                {
+                    var currentCell = this._pizzaTable[row, column];
+                    returnValue._pizzaTable[row, column] = 
+                        new PizzaCell(row, column, currentCell.Ingredient, currentCell.Slice);
+                }
+            }
 
             return returnValue;
         }
