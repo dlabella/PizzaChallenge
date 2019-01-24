@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 
 namespace PizzaChallenge
 {
-    public class PizzaDefinition
+    public class PizzaOrder
     {
         private Pizza _pizza;
         private PizzaRequirements _requirements;
-        public PizzaDefinition()
+        public PizzaOrder()
         {
 
             _requirements = new PizzaRequirements();
         }
 
-        public PizzaDefinition(PizzaRequirements requirements, Pizza pizza)
+        public PizzaOrder(PizzaRequirements requirements, Pizza pizza)
         {
 
             _requirements = requirements;
@@ -32,12 +32,12 @@ namespace PizzaChallenge
             get { return _requirements; }
         }
 
-        public async Task Write(string file)
+        public async Task WriteResult(string file)
         {
-            await Write(_pizza, file);
+            await WriteResult(_pizza, file);
         }
 
-        public async Task Write(Pizza pizza, string file)
+        public async Task WriteResult(Pizza pizza, string file)
         {
             StringBuilder sb = new StringBuilder();
             var slices = pizza.Cells.Items().GroupBy(x => x.Slice).OrderBy(x => x.Key);
@@ -52,7 +52,7 @@ namespace PizzaChallenge
         }
 
 
-        public async Task Read(string file)
+        public async Task ReadRequest(string file)
         {
             Logger.Log($"Parsing File {file}");
             using (StreamReader rdr = new StreamReader(file))

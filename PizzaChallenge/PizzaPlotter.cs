@@ -16,7 +16,7 @@ namespace PizzaChallenge
             _colors = new Dictionary<int, string>();
         }
 
-        public string Plot(PizzaDefinition pizzaDefinition)
+        public string Plot(PizzaOrder pizzaDefinition)
         {
             StringBuilder html = new StringBuilder();
             html.AppendLine("<html>");
@@ -61,7 +61,7 @@ namespace PizzaChallenge
             return html.ToString();
         }
 
-        private void PlotPizzaDefinition(StringBuilder sb, PizzaDefinition definition)
+        private void PlotPizzaDefinition(StringBuilder sb, PizzaOrder definition)
         {
             sb.AppendLine("****** SLICE DEFINITION *******<p>");
             sb.AppendLine($"Max Cells:       <b>{definition.Requirements.SliceMaxCells}</b><p>");

@@ -9,8 +9,8 @@ namespace PizzaChallenge.UnitTests
         [Fact]
         public void GetFirstCellNotInSliceTest()
         {
-            PizzaDefinition pizzaDefinition = new PizzaDefinition();
-            pizzaDefinition.Read("Samples/b_small.in").Wait();
+            PizzaOrder pizzaDefinition = new PizzaOrder();
+            pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
 
             var cell = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
             Assert.True(cell.Slice == null);
@@ -20,8 +20,8 @@ namespace PizzaChallenge.UnitTests
         [Fact]
         public void SpectSecondSliceTest()
         {
-            PizzaDefinition pizzaDefinition = new PizzaDefinition();
-            pizzaDefinition.Read("Samples/b_small.in").Wait();
+            PizzaOrder pizzaDefinition = new PizzaOrder();
+            pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
 
             var cell = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
             cell.Slice = 0;

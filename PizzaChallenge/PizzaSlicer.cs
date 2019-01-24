@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PizzaChallenge
 {
     public class PizzaSlicer
     {
-        private readonly PizzaDefinition _definition;
+        private readonly PizzaOrder _definition;
         private readonly PizzaRequirements _requirements;
         private readonly Pizza _pizza;
 
-        public PizzaSlicer(PizzaDefinition definition)
+        public PizzaSlicer(PizzaOrder definition)
         {
             _definition = definition;
             _pizza = _definition.Pizza;
@@ -20,8 +21,9 @@ namespace PizzaChallenge
         {
             var bestSolution = _pizza.Clone() as Pizza;
             var result = SliceInternal(_pizza, ref bestSolution);
-            return result??bestSolution;
+            return result ?? bestSolution;
         }
+
 
         private Pizza SliceInternal(Pizza sourcePizza, ref Pizza bestSolution)
         {
@@ -30,12 +32,7 @@ namespace PizzaChallenge
             {
                 if (sourcePizza.Cells.Items().Any(x => x.Slice == null))
                 {
-                    var currentEmptyCount = sourcePizza.Cells.Items().Count(x => x.Slice == null);
-                    var bestEmptyCount = bestSolution.Cells.Items().Count(x => x.Slice == null);
-                    if (currentEmptyCount < bestEmptyCount)
-                    {
-                        bestSolution = sourcePizza;
-                    }
+                    bestSolution = GetBestSolution(sourcePizza, bestSolution);
                     return null;
                 }
                 else
@@ -57,6 +54,18 @@ namespace PizzaChallenge
             return null;
         }
 
+        private static Pizza GetBestSolution(Pizza sourcePizza, Pizza bestSolution)
+        {
+            var currentEmptyCount = sourcePizza.Cells.Items().Count(x => x.Slice == null);
+            var bestEmptyCount = bestSolution.Cells.Items().Count(x => x.Slice == null);
+            if (currentEmptyCount < bestEmptyCount)
+            {
+                bestSolution = sourcePizza;
+            }
+
+            return bestSolution;
+        }
+
         private List<PizzaSlice> GetFilteredSlices(Pizza pizza, int sliceMaxCells)
         {
             var slices = GetSlices(pizza, sliceMaxCells);
@@ -68,7 +77,7 @@ namespace PizzaChallenge
             return slices.
                 Where(slice => slice.PizzaCells.Select(x => x.Ingredient).Distinct().Count() >= (_requirements.SliceMinIngredients * _pizza.DistinctIngredientsCount)).ToList();
         }
-        
+
         private List<PizzaSlice> GetSlices(Pizza pizza, int sliceMaxCells)
         {
             var returnValue = new List<PizzaSlice>();
@@ -79,19 +88,20 @@ namespace PizzaChallenge
             {
                 return null;
             }
-
-            for (var row = cellStart.Row; row < pizza.Rows; row++)
+            var maxRow = Math.Min(cellStart.Row + sliceMaxCells, pizza.Rows - 1);
+            var maxCol = Math.Min(cellStart.Col + sliceMaxCells, pizza.Columns - 1);
+            for (var row = cellStart.Row; row < maxRow; row++)
             {
-                for (var col = cellStart.Col; col < pizza.Columns; col++)
+                for (var col = cellStart.Col; col <= maxCol; col++)
                 {
+                    if(pizza.Cells[row, col].Slice != null)
+                    {
+                        break;
+                    }
                     var cellCount = GetCellCount(cellStart, row, col);
                     if (cellCount > 1 && cellCount <= sliceMaxCells)
                     {
                         returnValue.Add(GetSlice(cellStart, pizza.Cells[row, col]));
-                    }
-                    else
-                    {
-                        break;
                     }
                 }
             }

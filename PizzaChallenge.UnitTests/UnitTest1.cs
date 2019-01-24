@@ -8,9 +8,9 @@ namespace PizzaChallenge.UnitTests
         [Fact]
         public void PlotPizza()
         {
-            PizzaDefinition pizzaDefinition=new PizzaDefinition();
+            PizzaOrder pizzaDefinition=new PizzaOrder();
             //pizzaDefinition.Parse("Samples/a_example.in").Wait();
-            pizzaDefinition.Read("Samples/b_small.in").Wait();
+            pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
             var requirements = pizzaDefinition.Requirements;
             var pizza = pizzaDefinition.Pizza;
             var pizzaPlotter = new PizzaPlotter();
@@ -20,12 +20,12 @@ namespace PizzaChallenge.UnitTests
         [Fact]
         public void PlotPizzaSlices()
         {
-            PizzaDefinition pizzaDefinition = new PizzaDefinition();
-            pizzaDefinition.Read("Samples/a_example.in").Wait();
-            var pizzaSlicer = new PizzaSlicer(pizzaDefinition);
+            PizzaOrder pizzaOrder = new PizzaOrder();
+            pizzaOrder.ReadRequest("Samples/b_small.in").Wait();
+            var pizzaSlicer = new PizzaSlicer(pizzaOrder);
             var result = pizzaSlicer.Slice();
             var plottedResult = new PizzaPlotter().Plot(result);
-            pizzaDefinition.Write(result, "Results/a_example.out").Wait();
+            pizzaOrder.WriteResult(result, "Results/b_small.out").Wait();
         }
     }
 }
