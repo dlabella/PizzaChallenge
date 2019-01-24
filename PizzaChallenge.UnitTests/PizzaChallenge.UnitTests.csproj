@@ -20,6 +20,9 @@
     <None Update="Results\test.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Samples\c_medium.in">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Samples\c_mini_4.in">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

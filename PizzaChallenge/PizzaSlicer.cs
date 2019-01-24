@@ -68,14 +68,25 @@ namespace PizzaChallenge
 
         private List<PizzaSlice> GetFilteredSlices(Pizza pizza, int sliceMaxCells)
         {
+            
             var slices = GetSlices(pizza, sliceMaxCells);
+            var result = new List<PizzaSlice>(slices.Count);
             if (slices == null)
             {
                 return null;
             }
-
-            return slices.
-                Where(slice => slice.PizzaCells.Select(x => x.Ingredient).Distinct().Count() >= (_requirements.SliceMinIngredients * _pizza.DistinctIngredientsCount)).ToList();
+            foreach(var slice in slices)
+            {
+                var groups = slice.PizzaCells.GroupBy(x=>x.Ingredient);
+                if (groups.Count()>= _pizza.DistinctIngredientsCount)
+                {
+                    if (groups.All(x=>x.Count()>= _requirements.SliceMinIngredients))
+                    {
+                        result.Add(slice);
+                    }
+                }
+            }
+            return result;
         }
 
         private List<PizzaSlice> GetSlices(Pizza pizza, int sliceMaxCells)
@@ -83,14 +94,14 @@ namespace PizzaChallenge
             var returnValue = new List<PizzaSlice>();
 
             var cellStart = pizza.GetFirstCellNotInSlice();
-
             if (cellStart == null)
             {
-                return null;
+                return returnValue;
             }
             var maxRow = Math.Min(cellStart.Row + sliceMaxCells, pizza.Rows - 1);
             var maxCol = Math.Min(cellStart.Col + sliceMaxCells, pizza.Columns - 1);
-            for (var row = cellStart.Row; row < maxRow; row++)
+
+            for (var row = cellStart.Row; row <= maxRow; row++)
             {
                 for (var col = cellStart.Col; col <= maxCol; col++)
                 {

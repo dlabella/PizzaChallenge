@@ -21,11 +21,11 @@ namespace PizzaChallenge.UnitTests
         public void PlotPizzaSlices()
         {
             PizzaOrder pizzaOrder = new PizzaOrder();
-            pizzaOrder.ReadRequest("Samples/b_small.in").Wait();
+            pizzaOrder.ReadRequest("Samples/c_medium.in").Wait();
             var pizzaSlicer = new PizzaSlicer(pizzaOrder);
             var result = pizzaSlicer.Slice();
             var plottedResult = new PizzaPlotter().Plot(result);
-            pizzaOrder.WriteResult(result, "Results/b_small.out").Wait();
+            pizzaOrder.WriteResult(result, "Results/c_medium.out").Wait();
         }
     }
 }
