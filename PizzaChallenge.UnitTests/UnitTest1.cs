@@ -10,7 +10,7 @@ namespace PizzaChallenge.UnitTests
         {
             PizzaDefinition pizzaDefinition=new PizzaDefinition();
             //pizzaDefinition.Parse("Samples/a_example.in").Wait();
-            pizzaDefinition.Parse("Samples/b_small.in").Wait();
+            pizzaDefinition.Read("Samples/b_small.in").Wait();
             var requirements = pizzaDefinition.Requirements;
             var pizza = pizzaDefinition.Pizza;
             var pizzaPlotter = new PizzaPlotter();
@@ -21,10 +21,11 @@ namespace PizzaChallenge.UnitTests
         public void PlotPizzaSlices()
         {
             PizzaDefinition pizzaDefinition = new PizzaDefinition();
-            pizzaDefinition.Parse("Samples/a_example.in").Wait();
-            var slicedPizza = pizzaDefinition.Pizza.Slice();
-            var pizzaPlotter = new PizzaPlotter();
-            var result = pizzaDefinition.Pizza.PlotSliceSteps();
+            pizzaDefinition.Read("Samples/a_example.in").Wait();
+            var pizzaSlicer = new PizzaSlicer(pizzaDefinition);
+            var result = pizzaSlicer.Slice();
+            var plottedResult = new PizzaPlotter().Plot(result);
+            pizzaDefinition.Write(result, "Results/a_example.out").Wait();
         }
     }
 }

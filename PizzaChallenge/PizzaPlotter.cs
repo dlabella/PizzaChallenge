@@ -85,7 +85,7 @@ namespace PizzaChallenge
             sb.AppendLine("<tr>");
             for (var col = 0; col < pizza.Columns; col++)
             {
-                PlotPizzaCell(sb, pizza.GetPizzaCell(currrentRow, col));
+                PlotPizzaCell(sb, pizza.Cells[currrentRow, col]);
             }
             sb.AppendLine("</tr>");
         }
