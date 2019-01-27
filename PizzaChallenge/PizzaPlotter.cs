@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PizzaChallenge
@@ -35,6 +36,27 @@ namespace PizzaChallenge
             html.AppendLine("<html>");
             html.AppendLine("<body>");
             PlotPizzaTable(html, pizza);
+            html.AppendLine("</body>");
+            html.AppendLine("</html>");
+            return html.ToString();
+        }
+        public string Plot(PizzaSlice slice)
+        {
+            StringBuilder html = new StringBuilder();
+            html.AppendLine("<html>");
+            html.AppendLine("<body>");
+            PlotPizzaSlice(html, slice.PizzaCells);
+            html.AppendLine("</body>");
+            html.AppendLine("</html>");
+            return html.ToString();
+        }
+
+        public string Plot(IEnumerable<PizzaCell> cells)
+        {
+            StringBuilder html = new StringBuilder();
+            html.AppendLine("<html>");
+            html.AppendLine("<body>");
+            PlotPizzaSlice(html, cells);
             html.AppendLine("</body>");
             html.AppendLine("</html>");
             return html.ToString();
@@ -80,12 +102,38 @@ namespace PizzaChallenge
             sb.AppendLine("</table>");
         }
 
-        private void PlotPizzaRow(StringBuilder sb,int currrentRow, Pizza pizza)
+        private void PlotPizzaSlice(StringBuilder sb, IEnumerable<PizzaCell> cells)
+        {
+            sb.AppendLine("<table>");
+            var minRow = cells.Min(x=>x.Row);
+            var maxRow = cells.Max(x => x.Row);
+            for (var row = minRow; row <= maxRow; row++)
+            {
+                PlotPizzaSliceRow(sb, row, cells);
+            }
+            sb.AppendLine("</table>");
+        }
+
+        private void PlotPizzaSliceRow(StringBuilder sb,int currentRow, IEnumerable<PizzaCell> cells)
+        {
+            sb.AppendLine("<tr>");
+            var minCol = cells.Min(x => x.Col);
+            var maxCol = cells.Max(x => x.Col);
+            for (var col = minCol; col <= maxCol; col++)
+            {
+                var cell = cells.First(x=>x.Col==col && x.Row==currentRow );
+                if (cell != null) {
+                    PlotPizzaCell(sb, cell);
+                }
+            }
+            sb.AppendLine("</tr>");
+        }
+        private void PlotPizzaRow(StringBuilder sb,int currentRow, Pizza pizza)
         {
             sb.AppendLine("<tr>");
             for (var col = 0; col < pizza.Columns; col++)
             {
-                PlotPizzaCell(sb, pizza.Cells[currrentRow, col]);
+                PlotPizzaCell(sb, pizza.Cells[currentRow, col]);
             }
             sb.AppendLine("</tr>");
         }

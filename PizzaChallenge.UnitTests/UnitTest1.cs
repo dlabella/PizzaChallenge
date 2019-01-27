@@ -18,14 +18,25 @@ namespace PizzaChallenge.UnitTests
         }
 
         [Fact]
-        public void PlotPizzaSlices()
+        public void SolveSmallRequest()
+        {
+            PizzaOrder pizzaOrder = new PizzaOrder();
+            pizzaOrder.ReadRequest("Samples/b_small.in").Wait();
+            var pizzaSlicer = new PizzaSlicer(pizzaOrder);
+            var result = pizzaSlicer.Slice();
+            var plottedResult = new PizzaPlotter().Plot(result);
+            pizzaOrder.WriteResult(result, "Results/b_small.out").Wait();
+        }
+
+        [Fact]
+        public void SolveMediumRequest()
         {
             PizzaOrder pizzaOrder = new PizzaOrder();
             pizzaOrder.ReadRequest("Samples/c_medium.in").Wait();
             var pizzaSlicer = new PizzaSlicer(pizzaOrder);
             var result = pizzaSlicer.Slice();
             var plottedResult = new PizzaPlotter().Plot(result);
-            pizzaOrder.WriteResult(result, "Results/c_medium.out").Wait();
+            pizzaOrder.WriteResult(result, "Results/c_mediu,.out").Wait();
         }
     }
 }

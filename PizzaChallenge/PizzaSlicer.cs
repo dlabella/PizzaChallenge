@@ -27,7 +27,7 @@ namespace PizzaChallenge
 
         private Pizza SliceInternal(Pizza sourcePizza, ref Pizza bestSolution)
         {
-            var slices = GetFilteredSlices(sourcePizza, _requirements.SliceMaxCells);
+            var slices = GetSlices(sourcePizza, _requirements.SliceMaxCells);
             if (slices == null || slices.Count == 0)
             {
                 if (sourcePizza.Cells.Items().Any(x => x.Slice == null))
@@ -40,6 +40,7 @@ namespace PizzaChallenge
                     return sourcePizza;
                 }
             }
+
             foreach (var slice in slices)
             {
                 var newPizza = sourcePizza.Clone() as Pizza;
@@ -66,28 +67,28 @@ namespace PizzaChallenge
             return bestSolution;
         }
 
-        private List<PizzaSlice> GetFilteredSlices(Pizza pizza, int sliceMaxCells)
-        {
-            
-            var slices = GetSlices(pizza, sliceMaxCells);
-            var result = new List<PizzaSlice>(slices.Count);
-            if (slices == null)
-            {
-                return null;
-            }
-            foreach(var slice in slices)
-            {
-                var groups = slice.PizzaCells.GroupBy(x=>x.Ingredient);
-                if (groups.Count()>= _pizza.DistinctIngredientsCount)
-                {
-                    if (groups.All(x=>x.Count()>= _requirements.SliceMinIngredients))
-                    {
-                        result.Add(slice);
-                    }
-                }
-            }
-            return result;
-        }
+        //private List<PizzaSlice> GetFilteredSlices(Pizza pizza, int sliceMaxCells)
+        //{
+        //    var slices = GetSlices(pizza, sliceMaxCells);
+        //    var result = new List<PizzaSlice>(slices.Count);
+        //    if (slices == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    foreach(var slice in slices)
+        //    {
+        //        var groups = slice.PizzaCells.GroupBy(x=>x.Ingredient);
+        //        if (groups.Count()>= _pizza.DistinctIngredientsCount)
+        //        {
+        //            if (groups.All(x=>x.Count()>= _requirements.SliceMinIngredients))
+        //            {
+        //                result.Add(slice);
+        //            }
+        //        }
+        //    }
+        //    return result;
+        //}
 
         private List<PizzaSlice> GetSlices(Pizza pizza, int sliceMaxCells)
         {
@@ -98,28 +99,48 @@ namespace PizzaChallenge
             {
                 return returnValue;
             }
+
             var maxRow = Math.Min(cellStart.Row + sliceMaxCells, pizza.Rows - 1);
             var maxCol = Math.Min(cellStart.Col + sliceMaxCells, pizza.Columns - 1);
 
-            for (var row = cellStart.Row; row <= maxRow; row++)
+            for (var row = maxRow; row >= cellStart.Row; row--)
             {
-                for (var col = cellStart.Col; col <= maxCol; col++)
+                for (var col = maxCol; col >= cellStart.Col; col--)
                 {
-                    if(pizza.Cells[row, col].Slice != null)
+                    if (pizza.Cells[row, col].Slice != null)
                     {
                         break;
                     }
                     var cellCount = GetCellCount(cellStart, row, col);
                     if (cellCount > 1 && cellCount <= sliceMaxCells)
                     {
-                        returnValue.Add(GetSlice(cellStart, pizza.Cells[row, col]));
+                        var slice = GetSlice(cellStart, pizza.Cells[row, col]);
+                        if (SliceMeetsRequirements(slice))
+                        {
+                            returnValue.Add(slice);
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
             }
 
             return returnValue.OrderByDescending(x => x.Area).ToList();
         }
-
+        private bool SliceMeetsRequirements(PizzaSlice slice)
+        {
+            var groups = slice.PizzaCells.GroupBy(x => x.Ingredient);
+            if (groups.Count() >= _pizza.DistinctIngredientsCount)
+            {
+                if (groups.All(x => x.Count() >= _requirements.SliceMinIngredients))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         private int GetCellCount(PizzaCell cellStart, int row, int col)
         {
             var distanceCol = (col - cellStart.Col) + 1;
