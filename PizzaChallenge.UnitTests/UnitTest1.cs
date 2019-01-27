@@ -6,14 +6,15 @@ namespace PizzaChallenge.UnitTests
     public class UnitTest1
     {
         [Fact]
-        public void SolveExampleRequest()
+        public void PlotPizza()
         {
-            PizzaOrder pizzaOrder = new PizzaOrder();
-            pizzaOrder.ReadRequest("Samples/a_example.in").Wait();
-            var pizzaSlicer = new PizzaSlicer(pizzaOrder);
-            var result = pizzaSlicer.Slice();
-            var plottedResult = new PizzaPlotter().Plot(result);
-            pizzaOrder.WriteResult(result, "Results/a_example.out").Wait();
+            PizzaOrder pizzaDefinition=new PizzaOrder();
+            //pizzaDefinition.Parse("Samples/a_example.in").Wait();
+            pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
+            var requirements = pizzaDefinition.Requirements;
+            var pizza = pizzaDefinition.Pizza;
+            var pizzaPlotter = new PizzaPlotter();
+            var result = pizzaPlotter.Plot(pizzaDefinition);
         }
 
         [Fact]
