@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PizzaChallenge
 {
@@ -20,39 +23,45 @@ namespace PizzaChallenge
         public Pizza Slice()
         {
             var bestSolution = _pizza.Clone() as Pizza;
-            var result = SliceInternal(_pizza, ref bestSolution);
-            return result ?? bestSolution;
+            var results = new ConcurrentBag<Pizza>();
+            SliceInternal(_pizza, results);
+            return results.FirstOrDefault();
         }
 
 
-        private Pizza SliceInternal(Pizza sourcePizza, ref Pizza bestSolution)
+        private bool SliceInternal(Pizza sourcePizza, ConcurrentBag<Pizza> results, CancellationTokenSource cts = null)
         {
+            if (cts == null)
+            {
+                cts = new CancellationTokenSource();
+            }
             var slices = GetSlices(sourcePizza, _requirements.SliceMaxCells);
             if (slices == null || slices.Count == 0)
             {
-                if (sourcePizza.Cells.Items().Any(x => x.Slice == null))
+                if (sourcePizza.Cells.Items().All(x => x.Slice != null))
                 {
-                    bestSolution = GetBestSolution(sourcePizza, bestSolution);
-                    return null;
+                    results.Add(sourcePizza);
+                    return true;
                 }
-                else
-                {
-                    return sourcePizza;
-                }
+                return false;
             }
 
-            foreach (var slice in slices)
+            Parallel.ForEach(slices, (slice, state) =>
             {
-                var newPizza = sourcePizza.Clone() as Pizza;
-                newPizza.AddSlice(slice);
-                var solution = SliceInternal(newPizza, ref bestSolution);
-                if (solution != null)
+                if (!cts.IsCancellationRequested)
                 {
-                    return solution;
+                    var newPizza = sourcePizza.Clone() as Pizza;
+                    newPizza.AddSlice(slice);
+                    var solved = SliceInternal(newPizza, results, cts);
+                    if (solved)
+                    {
+                        cts.Cancel();
+                        state.Stop();
+                    }
                 }
-            }
+            });
 
-            return null;
+            return false;
         }
 
         private static Pizza GetBestSolution(Pizza sourcePizza, Pizza bestSolution)
@@ -143,10 +152,7 @@ namespace PizzaChallenge
         }
         private int GetCellCount(PizzaCell cellStart, int row, int col)
         {
-            var distanceCol = (col - cellStart.Col) + 1;
-            var distanceRow = (row - cellStart.Row) + 1;
-
-            return distanceCol * distanceRow;
+            return ((col - cellStart.Col) + 1) * ((row - cellStart.Row) + 1);
         }
 
         private PizzaSlice GetSlice(PizzaCell cellStart, PizzaCell pizzaCell)
