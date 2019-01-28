@@ -12,7 +12,7 @@ namespace PizzaChallenge
         private int _rowIdx;
         private int _colIdx;
         private int _sliceCount;
-        
+        private int _cellsInSlice;
 
         public Pizza(PizzaRequirements requirements)
         {
@@ -26,10 +26,11 @@ namespace PizzaChallenge
 
         public int Rows => Cells.GetLength(0);
         public int Columns => Cells.GetLength(1);
-
+        public int CellsInSlice => _cellsInSlice;
         public void AddSlice(PizzaSlice slice)
         {
             this._sliceCount++;
+            _cellsInSlice += slice.PizzaCells.Count;
             foreach (var cell in slice.PizzaCells)
             {
                 this.Cells[cell.Row, cell.Col].Slice = this._sliceCount;
@@ -93,6 +94,7 @@ namespace PizzaChallenge
             returnValue._colIdx = this._colIdx;
             returnValue.DistinctIngredientsCount = this.DistinctIngredientsCount;
             returnValue.Cells = new PizzaCell[this.Rows, this.Columns];
+            returnValue._cellsInSlice = this._cellsInSlice;
 
             for(var row = 0; row < this.Rows; row++)
             {

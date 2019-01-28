@@ -12,6 +12,7 @@ namespace PizzaChallenge
         private readonly PizzaOrder _definition;
         private readonly PizzaRequirements _requirements;
         private readonly Pizza _pizza;
+        
 
         public PizzaSlicer(PizzaOrder definition)
         {
@@ -22,14 +23,30 @@ namespace PizzaChallenge
 
         public Pizza Slice()
         {
-            var bestSolution = _pizza.Clone() as Pizza;
+            var statistics = new SlicingStatistics();
+            var cts = new CancellationTokenSource();
             var results = new ConcurrentBag<Pizza>();
-            SliceInternal(_pizza, results);
+            Task.Run(() =>
+            {
+                var slicesBuff = 0;
+                var totalCells = _pizza.Rows * _pizza.Columns;
+                while (!cts.IsCancellationRequested)
+                {
+                    var slicesProc = statistics.SlicesProcessed - slicesBuff;
+                    slicesBuff = statistics.SlicesProcessed;
+                    System.Diagnostics.Debug.WriteLine($"Slices processed per second: {slicesProc}");
+                    System.Diagnostics.Debug.WriteLine($"Percent completed ap: {statistics.CellsInSlice} of {totalCells}");
+                    Thread.Sleep(1000);
+                }
+            });
+
+            SliceInternal(_pizza, results, statistics);
+            cts.Cancel();
             return results.FirstOrDefault();
         }
 
 
-        private bool SliceInternal(Pizza sourcePizza, ConcurrentBag<Pizza> results, CancellationTokenSource cts = null)
+        private bool SliceInternal(Pizza sourcePizza, ConcurrentBag<Pizza> results, SlicingStatistics statistics, CancellationTokenSource cts = null)
         {
             if (cts == null)
             {
@@ -52,7 +69,9 @@ namespace PizzaChallenge
                 {
                     var newPizza = sourcePizza.Clone() as Pizza;
                     newPizza.AddSlice(slice);
-                    var solved = SliceInternal(newPizza, results, cts);
+                    statistics.SlicesProcessed += slice.PizzaCells.Count;
+                    statistics.CellsInSlice = newPizza.CellsInSlice;
+                    var solved = SliceInternal(newPizza, results, statistics, cts);
                     if (solved)
                     {
                         cts.Cancel();
