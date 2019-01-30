@@ -11,15 +11,15 @@ namespace PizzaChallenge
         private PizzaRequirements _requirements;
         private int _rowIdx;
         private int _colIdx;
-        private int _sliceCount;
-        
+        private int _area;
 
         public Pizza(PizzaRequirements requirements)
         {
             _requirements = requirements;
             Cells = new PizzaCell[_requirements.Rows, _requirements.Columns];
-            _sliceCount = 0;
+            _area=_requirements.Rows*_requirements.Columns;
         }
+        public int Area=>_area;
         public int DistinctIngredientsCount { get; private set; }
 
         public PizzaCell[,] Cells { get; private set; }
@@ -27,14 +27,14 @@ namespace PizzaChallenge
         public int Rows => Cells.GetLength(0);
         public int Columns => Cells.GetLength(1);
 
-        public void AddSlice(PizzaSlice slice)
-        {
-            this._sliceCount++;
-            foreach (var cell in slice.PizzaCells)
-            {
-                this.Cells[cell.Row, cell.Col].Slice = this._sliceCount;
-            }
-        }
+        //public void AddSlice(PizzaSlice slice)
+        //{
+        //    this._sliceCount++;
+        //    foreach (var cell in slice.PizzaCells)
+        //    {
+        //        this.Cells[cell.Row, cell.Col].Slice = this._sliceCount;
+        //    }
+        //}
 
         public async Task ParseAsync(StreamReader reader)
         {
@@ -71,24 +71,23 @@ namespace PizzaChallenge
         {
             Cells[row, col] = new PizzaCell(row, col, ingredient);
         }
-        public PizzaCell GetFirstCellNotInSlice()
-        {
-            for (var row = 0; row < Rows; row++)
-            {
-                for (var col = 0; col < Columns; col++)
-                {
-                    if (Cells[row, col].Slice == null)
-                    {
-                        return Cells[row, col];
-                    }
-                }
-            }
-            return null;
-        }
+        //public PizzaCell GetFirstCellNotInSlice()
+        //{
+        //    for (var row = 0; row < Rows; row++)
+        //    {
+        //        for (var col = 0; col < Columns; col++)
+        //        {
+        //            if (Cells[row, col].Slice == null)
+        //            {
+        //                return Cells[row, col];
+        //            }
+        //        }
+        //    }
+        //    return null;
+        //}
         public object Clone()
         {
             var returnValue = new Pizza(this._requirements);
-            returnValue._sliceCount = this._sliceCount;
             returnValue._rowIdx = this._rowIdx;
             returnValue._colIdx = this._colIdx;
             returnValue.DistinctIngredientsCount = this.DistinctIngredientsCount;

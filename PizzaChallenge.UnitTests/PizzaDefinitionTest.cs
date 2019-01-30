@@ -6,30 +6,30 @@ namespace PizzaChallenge.UnitTests
 {
     public class PizzaDefinitionTest
     {
-        [Fact]
-        public void GetFirstCellNotInSliceTest()
-        {
-            PizzaOrder pizzaDefinition = new PizzaOrder();
-            pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
+        //[Fact]
+        //public void GetFirstCellNotInSliceTest()
+        //{
+        //    PizzaOrder pizzaDefinition = new PizzaOrder();
+        //    pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
 
-            var cell = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
-            Assert.True(cell.Slice == null);
-            Assert.True(cell.Row == 0 && cell.Col == 0);
-        }
+        //    var cell = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
+        //    Assert.True(cell.Slice == null);
+        //    Assert.True(cell.Row == 0 && cell.Col == 0);
+        //}
 
-        [Fact]
-        public void SpectSecondSliceTest()
-        {
-            PizzaOrder pizzaDefinition = new PizzaOrder();
-            pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
+        //[Fact]
+        //public void SpectSecondSliceTest()
+        //{
+        //    PizzaOrder pizzaDefinition = new PizzaOrder();
+        //    pizzaDefinition.ReadRequest("Samples/b_small.in").Wait();
 
-            var cell = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
-            cell.Slice = 0;
-            var cell2 = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
-            Assert.Null(cell2.Slice);
-            Assert.Equal(0, cell2.Row);
-            Assert.Equal(1, cell2.Col);
-        }
+        //    var cell = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
+        //    cell.Slice = 0;
+        //    var cell2 = pizzaDefinition.Pizza.GetFirstCellNotInSlice();
+        //    Assert.Null(cell2.Slice);
+        //    Assert.Equal(0, cell2.Row);
+        //    Assert.Equal(1, cell2.Col);
+        //}
 
         //[Theory]
         //[InlineData(2, 2)]

@@ -7,10 +7,13 @@ namespace PizzaChallenge
 {
     public class PizzaSlice
     {
+        private string _sliceId;
         public PizzaSlice()
         {
             PizzaCells = new List<PizzaCell>();
+            _sliceId= Guid.NewGuid().ToString();
         }
+        public string SliceId => _sliceId;
 
         public List<PizzaCell> PizzaCells { get; set; }
 

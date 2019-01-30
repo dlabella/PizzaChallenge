@@ -35,7 +35,7 @@ namespace PizzaChallenge.UnitTests
             var pizzaSlicer = new PizzaSlicer(pizzaOrder);
             var result = pizzaSlicer.Slice();
             var plottedResult = new PizzaPlotter().Plot(result);
-            pizzaOrder.WriteResult(result, "Results/c_mediu,.out").Wait();
+            pizzaOrder.WriteResult(result, "Results/c_medium.out").Wait();
         }
     }
 }
