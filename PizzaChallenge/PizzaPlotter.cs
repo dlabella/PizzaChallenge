@@ -11,12 +11,15 @@ namespace PizzaChallenge
         public Dictionary<string, Color> _colorsRgb;
         private Random _random;
         private readonly StringBuilder _queuedPlot;
+        private const string defaultColorId = "_"; 
         public PizzaPlotter()
         {
             _random = new Random();
             _queuedPlot = new StringBuilder();
             _colors = new Dictionary<string, string>();
             _colorsRgb = new Dictionary<string, Color>();
+            _colors.Add(defaultColorId, "255,255,255");
+            _colorsRgb.Add(defaultColorId, Color.White);
         }
 
         //public string Plot(PizzaOrder pizzaDefinition)
@@ -69,7 +72,7 @@ namespace PizzaChallenge
         {
             var rows = slices.Pizza.Rows;
             var cols = slices.Pizza.Columns;
-            Bitmap bmp=new Bitmap(rows, cols);
+            Bitmap bmp = new Bitmap(rows, cols);
             for (var row = 0; row < rows; row++)
             {
                 for (var col = 0; col < cols; col++)
@@ -79,7 +82,7 @@ namespace PizzaChallenge
                     {
                         var slice = slices.GetSliceFromCell(currentCell);
                         var color = GetColorRgb(slice.SliceId);
-                        bmp.SetPixel(row,col, color);
+                        bmp.SetPixel(row, col, color);
                     }
                     else
                     {
@@ -90,7 +93,7 @@ namespace PizzaChallenge
             return bmp;
         }
 
-        
+
 
         //public string Plot(IEnumerable<PizzaSlice> slices)
         //{
@@ -237,11 +240,11 @@ namespace PizzaChallenge
             string rgb = "";
             if (string.IsNullOrEmpty(sliceId))
             {
-                rgb = "255,255,255";
+                return _colors[defaultColorId];
             }
-            else if (_colors.ContainsKey(sliceId ?? "0"))
+            else if (_colors.ContainsKey(sliceId))
             {
-                rgb = _colors[sliceId ?? "0"];
+                return _colors[sliceId];
             }
             else
             {
@@ -249,30 +252,31 @@ namespace PizzaChallenge
                 var g = _random.Next(256);
                 var b = _random.Next(256);
                 rgb = $"{r},{g},{b}";
-                _colors.Add(sliceId ?? "0", rgb);
+                _colors.Add(sliceId, rgb);
+                return rgb;
             }
-            return rgb;
         }
+
         private Color GetColorRgb(string sliceId)
         {
             Color rgb;
             if (string.IsNullOrEmpty(sliceId))
             {
-                rgb = Color.White;
+                return _colorsRgb[defaultColorId];
             }
-            else if (_colorsRgb.ContainsKey(sliceId ?? "0"))
+            else if (_colorsRgb.ContainsKey(sliceId))
             {
-                rgb = _colorsRgb[sliceId ?? "0"];
+                return _colorsRgb[sliceId];
             }
             else
             {
                 var r = _random.Next(256);
                 var g = _random.Next(256);
                 var b = _random.Next(256);
-                rgb =Color.FromArgb(r,g,b);
-                _colorsRgb.Add(sliceId ?? "0", rgb);
+                rgb = Color.FromArgb(r, g, b);
+                _colorsRgb.Add(sliceId, rgb);
+                return rgb;
             }
-            return rgb;
         }
     }
 }

@@ -37,5 +37,16 @@ namespace PizzaChallenge.UnitTests
             var plottedResult = new PizzaPlotter().Plot(result);
             pizzaOrder.WriteResult(result, "Results/c_medium.out").Wait();
         }
+
+        [Fact]
+        public void SolveBigRequest()
+        {
+            PizzaOrder pizzaOrder = new PizzaOrder();
+            pizzaOrder.ReadRequest("Samples/d_big.in").Wait();
+            var pizzaSlicer = new PizzaSlicer(pizzaOrder);
+            var result = pizzaSlicer.Slice();
+            var plottedResult = new PizzaPlotter().Plot(result);
+            pizzaOrder.WriteResult(result, "Results/d_big.out").Wait();
+        }
     }
 }

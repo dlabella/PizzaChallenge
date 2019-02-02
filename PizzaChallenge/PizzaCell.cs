@@ -9,6 +9,7 @@ namespace PizzaChallenge
         public static string GetCellId(int row, int col)
         {
             return $"{row}-{col}";
+            
         }
         public string CellId {get; }
         public PizzaCell(int row, int col, char ingredient, int? slice = null)
@@ -19,6 +20,7 @@ namespace PizzaChallenge
             Slice = slice;
             CellId= GetCellId(row,col);
         }
+
         public int Row { get; }
         public int Col { get; }
         public char Ingredient { get; }

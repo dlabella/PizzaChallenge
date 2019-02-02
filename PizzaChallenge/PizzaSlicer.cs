@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +14,8 @@ namespace PizzaChallenge
         private readonly SliceStatistics _statistics;
         private readonly SliceStatistics _statisticsBuff;
         private readonly PizzaPlotter _plotter;
+        private readonly PizzaSlices _pizzaSlices;
+
         public PizzaSlicer(PizzaOrder definition)
         {
             _definition = definition;
@@ -23,12 +23,12 @@ namespace PizzaChallenge
             _requirements = _definition.Requirements;
             _statistics = new SliceStatistics();
             _statisticsBuff = new SliceStatistics();
-            _plotter=new PizzaPlotter();
+            _plotter = new PizzaPlotter();
+            _pizzaSlices=new PizzaSlices(_pizza);
         }
 
         public Pizza Slice()
         {
-            var slices = new PizzaSlices(_pizza);
             var cts = new CancellationTokenSource();
 
             Task.Run(() =>
@@ -38,102 +38,112 @@ namespace PizzaChallenge
                     var buff = _statistics.SlicesProcessed - _statisticsBuff.SlicesProcessed;
                     _statisticsBuff.SlicesProcessed = _statistics.SlicesProcessed;
                     System.Diagnostics.Debug.WriteLine($"Slices per seconds {buff}");
+                    System.Diagnostics.Debug.WriteLine($"Current Slice {_statistics.CurrentSliceId}");
                     System.Diagnostics.Debug.WriteLine($"Area Filled {_statistics.AreaFilled} of {_pizza.Area}");
+                    System.Diagnostics.Debug.WriteLine($"Best Area Filled {_statistics.BestAreaFilled} of {_pizza.Area}");
                     Thread.Sleep(1000);
                 }
             });
 
-            SliceInternal(_pizza, slices);
-            cts.Cancel();
+            var result = SliceInternal(cts);
 
             int sliceIndex = 0;
-            foreach (var slice in slices.Slices)
+            foreach (var slice in _pizzaSlices.Slices)
             {
-                foreach (var cell in slice.PizzaCells)
+                foreach (var cell in slice.GetCells())
                 {
                     cell.Slice = sliceIndex;
                 }
                 sliceIndex++;
             }
+
             return _pizza;
         }
 
 
-        private bool SliceInternal(Pizza pizza, PizzaSlices slices)
+        private bool SliceInternal(CancellationTokenSource cts = null)
         {
-            var newSlices = GetSlices(pizza, slices, _requirements.SliceMaxCells);
-            foreach (var slice in newSlices.Slices)
+            var cellStart = GetFirstCellNotInSlice();
+            var newSlices = GetValidSlices(cellStart).OrderBy(x=>x.Area);
+            foreach (var slice in newSlices)
             {
-                _statistics.SlicesProcessed++;
-                slices.AddSlice(slice);
-                _statistics.AreaFilled = slices.Area;
-                if (slices.Area == pizza.Area)
+                _pizzaSlices.AddSlice(slice);
+                _statistics.CurrentSliceId = slice.SliceId;
+                _statistics.AreaFilled = _pizzaSlices.Area;
+                if (_pizzaSlices.Area == _pizza.Area)
                 {
                     return true;
                 }
-
-                if (SliceInternal(pizza, slices))
+                if (cts != null && cts.IsCancellationRequested)
+                {
+                    return false;
+                }
+                if (SliceInternal(cts))
                 {
                     return true;
                 }
-                slices.RemoveSlice(slice);
+                _pizzaSlices.RemoveSlice(slice);
             };
 
             return false;
         }
 
-        public PizzaCell GetFirstCellNotInSlice(Pizza pizza, PizzaSlices slices)
+        private PizzaCell GetFirstCellNotInSlice()
         {
-            return pizza.Cells.Items().FirstOrDefault(x => !slices.ContainsCellId(x.CellId) && x.Slice!=-1);
+            return _pizza.Cells.Items().FirstOrDefault(x => !_pizzaSlices.ContainsCellId(x.CellId) && !_pizzaSlices.IsInvalidCell(x));
         }
 
-        private PizzaSlices GetSlices(Pizza pizza, PizzaSlices currentSlices, int sliceMaxCells)
+        private IEnumerable<PizzaSlice> GetValidSlices(PizzaCell cellStart)
         {
-            var returnValue = new PizzaSlices(pizza);
-
-            var cellStart = GetFirstCellNotInSlice(pizza, currentSlices);
-            if (cellStart == null)
+            
+            var availableSlices = GetAvailableSlices(cellStart);
+            if (!availableSlices.Any())
             {
-                return returnValue;
+                _pizzaSlices.AddInvalidCell(cellStart);
+                yield return null;
             }
 
-            var maxRow = Math.Min(cellStart.Row + sliceMaxCells, pizza.Rows - 1);
-            var maxCol = Math.Min(cellStart.Col + sliceMaxCells, pizza.Columns - 1);
-
-            for (var row = maxRow; row >= cellStart.Row; row--)
+            foreach (var slice in availableSlices)
             {
-                for (var col = maxCol; col >= cellStart.Col; col--)
+                if (SliceMeetsRequirements(_pizzaSlices, slice))
                 {
-                    var currentCell = pizza.Cells[row, col];
-                    if (currentSlices.ContainsCellId(currentCell.CellId))
-                    {
-                        break;
-                    }
+                    yield return slice;
+                }
+            }
+        }
+
+        private IEnumerable<PizzaSlice> GetAvailableSlices(PizzaCell cellStart)
+        {
+            if (cellStart == null)
+            {
+                yield return null;
+            }
+            var sliceMaxCells = _requirements.SliceMaxCells;
+            var maxRow = Math.Min(cellStart.Row + sliceMaxCells, _pizza.Rows - 1);
+            var maxCol = Math.Min(cellStart.Col + sliceMaxCells, _pizza.Columns - 1);
+
+            for (var row = cellStart.Row; row <= maxRow; row++)
+            {
+                for (var col = cellStart.Col; col <= maxCol; col++)
+                {
                     var cellCount = GetCellCount(cellStart, row, col);
                     if (cellCount > 1 && cellCount <= sliceMaxCells)
                     {
-                        var slice = GetSlice(cellStart, currentCell);
-                        if (SliceMeetsRequirements(slice))
-                        {
-                            returnValue.AddSlice(slice);
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        _statistics.SlicesProcessed++;
+                        yield return GetSlice(cellStart, _pizza.Cells[row, col]);
                     }
                 }
             }
-            if (returnValue.Area == 0)
-            {
-                cellStart.Slice=-1;
-            }
-            return returnValue;
         }
 
-        private bool SliceMeetsRequirements(PizzaSlice slice)
+        private bool SliceMeetsRequirements(PizzaSlices currentSlices, PizzaSlice slice)
         {
-            var groups = slice.PizzaCells.GroupBy(x => x.Ingredient);
+            if (slice.Area <= 1 || slice.GetCells().Any(cell => currentSlices.ContainsCellId(cell.CellId)))
+            {
+                return false;
+            }
+
+            var groups = slice.GetCells().GroupBy(x => x.Ingredient);
             if (groups.Count() >= _pizza.DistinctIngredientsCount)
             {
                 if (groups.All(x => x.Count() >= _requirements.SliceMinIngredients))
@@ -156,7 +166,7 @@ namespace PizzaChallenge
             {
                 for (var col = cellStart.Col; col <= pizzaCell.Col; col++)
                 {
-                    pizzaSlice.PizzaCells.Add(_pizza.Cells[row, col]);
+                    pizzaSlice.AddCell(_pizza.Cells[row, col]);
                 }
             }
 
