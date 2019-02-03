@@ -14,7 +14,7 @@ namespace PizzaChallenge
         private readonly SliceStatistics _statistics;
         private readonly SliceStatistics _statisticsBuff;
         private readonly PizzaPlotter _plotter;
-        private readonly PizzaSlices _pizzaSlices;
+        private readonly HashSet<string> _invalidCells;
 
         public PizzaSlicer(PizzaOrder definition)
         {
@@ -24,7 +24,8 @@ namespace PizzaChallenge
             _statistics = new SliceStatistics();
             _statisticsBuff = new SliceStatistics();
             _plotter = new PizzaPlotter();
-            _pizzaSlices=new PizzaSlices(_pizza);
+
+            _invalidCells = new HashSet<string>();
         }
 
         public Pizza Slice()
@@ -45,67 +46,70 @@ namespace PizzaChallenge
                 }
             });
 
-            var result = SliceInternal(cts);
+            var slices = new PizzaSlices(_pizza);
+            var result = SliceInternal(slices);
 
-            int sliceIndex = 0;
-            foreach (var slice in _pizzaSlices.Slices)
+            foreach (var slice in slices.Slices)
             {
                 foreach (var cell in slice.GetCells())
                 {
-                    cell.Slice = sliceIndex;
+                    cell.Slice = slice.SliceNum;
                 }
-                sliceIndex++;
             }
 
             return _pizza;
         }
 
 
-        private bool SliceInternal(CancellationTokenSource cts = null)
+        private bool SliceInternal(PizzaSlices slices, PizzaCell parentCell = null)
         {
-            var cellStart = GetFirstCellNotInSlice();
-            var newSlices = GetValidSlices(cellStart).OrderBy(x=>x.Area);
-            foreach (var slice in newSlices)
+            if (parentCell != null)
             {
-                _pizzaSlices.AddSlice(slice);
-                _statistics.CurrentSliceId = slice.SliceId;
-                _statistics.AreaFilled = _pizzaSlices.Area;
-                if (_pizzaSlices.Area == _pizza.Area)
-                {
-                    return true;
-                }
-                if (cts != null && cts.IsCancellationRequested)
-                {
-                    return false;
-                }
-                if (SliceInternal(cts))
-                {
-                    return true;
-                }
-                _pizzaSlices.RemoveSlice(slice);
-            };
+                parentCell.Visited = true;
+            }
+            var cellStart = GetFirstCellNotInSlice(slices);
+            if (cellStart == null)
+            {
+                System.Diagnostics.Debug.WriteLine("Dead End");
+                return false;
+            }
+            var validSlices = GetValidSlices(slices, cellStart).OrderByDescending(x => x.Area);
+            if (!validSlices.Any())
+            {
+                cellStart.Visited = true;
+                return false;
+            }
 
+            foreach (var slice in validSlices)
+            {
+                slices.AddSlice(slice);
+                _statistics.CurrentSliceId = slice.SliceId;
+                _statistics.AreaFilled = slices.Area;
+                if (slices.Area == _pizza.Area)
+                {
+                    return true;
+                }
+                if (SliceInternal(slices, cellStart))
+                {
+                    return true;
+                }
+                slices.RemoveSlice(slice);
+            };
+            cellStart.Visited = false;
             return false;
         }
 
-        private PizzaCell GetFirstCellNotInSlice()
+        private PizzaCell GetFirstCellNotInSlice(PizzaSlices slices)
         {
-            return _pizza.Cells.Items().FirstOrDefault(x => !_pizzaSlices.ContainsCellId(x.CellId) && !_pizzaSlices.IsInvalidCell(x));
+            return _pizza.Cells.Items().FirstOrDefault(x => !slices.ContainsCellId(x.CellId) && !x.Visited);
         }
 
-        private IEnumerable<PizzaSlice> GetValidSlices(PizzaCell cellStart)
+        private IEnumerable<PizzaSlice> GetValidSlices(PizzaSlices slices, PizzaCell cellStart)
         {
-            
             var availableSlices = GetAvailableSlices(cellStart);
-            if (!availableSlices.Any())
-            {
-                _pizzaSlices.AddInvalidCell(cellStart);
-                yield return null;
-            }
-
             foreach (var slice in availableSlices)
             {
-                if (SliceMeetsRequirements(_pizzaSlices, slice))
+                if (SliceMeetsRequirements(slices, slice))
                 {
                     yield return slice;
                 }
@@ -114,17 +118,15 @@ namespace PizzaChallenge
 
         private IEnumerable<PizzaSlice> GetAvailableSlices(PizzaCell cellStart)
         {
-            if (cellStart == null)
-            {
-                yield return null;
-            }
             var sliceMaxCells = _requirements.SliceMaxCells;
             var maxRow = Math.Min(cellStart.Row + sliceMaxCells, _pizza.Rows - 1);
+            var minRow = Math.Max(cellStart.Row - sliceMaxCells, 0);
             var maxCol = Math.Min(cellStart.Col + sliceMaxCells, _pizza.Columns - 1);
+            var minCol = Math.Max(cellStart.Col - sliceMaxCells, 0);
 
-            for (var row = cellStart.Row; row <= maxRow; row++)
+            for (var row = cellStart.Row - minRow; row <= maxRow; row++)
             {
-                for (var col = cellStart.Col; col <= maxCol; col++)
+                for (var col = cellStart.Col - minCol; col <= maxCol; col++)
                 {
                     var cellCount = GetCellCount(cellStart, row, col);
                     if (cellCount > 1 && cellCount <= sliceMaxCells)

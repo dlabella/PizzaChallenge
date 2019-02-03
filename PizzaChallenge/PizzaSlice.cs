@@ -16,6 +16,7 @@ namespace PizzaChallenge
         }
 
         public string SliceId {get;set; }
+        public int SliceNum { get; set; }
 
         public void AddCell(PizzaCell cell)
         {

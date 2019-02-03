@@ -6,9 +6,8 @@ namespace PizzaChallenge
     public class PizzaSlices
     {
         HashSet<PizzaSlice> _slices = new HashSet<PizzaSlice>();
-        HashSet<string> _invalidSlices = new HashSet<string>();
         HashSet<string> _cellKeys = new HashSet<string>();
-        HashSet<string> _cellsInvalid = new HashSet<string>();
+
 
         public int Area => _cellKeys.Count;
         public Pizza Pizza { get; }
@@ -16,28 +15,15 @@ namespace PizzaChallenge
         {
             Pizza = pizza;
         }
+        public int SliceCount
+        {
+            get { return _slices.Count;}
+        }
 
         public void ClearSlices()
         {
             _cellKeys.Clear();
             _slices.Clear();
-        }
-
-        public void AddInvalidCell(PizzaCell invalidCell)
-        {
-            _cellsInvalid.Add(invalidCell.CellId);
-        }
-
-        
-
-        public bool IsInvalidCell(PizzaCell cell)
-        {
-            return _cellsInvalid.Contains(cell.CellId);
-        }
-
-        public bool IsInvalidSlice(PizzaSlice slice)
-        {
-            return _invalidSlices.Contains(slice.SliceId);
         }
 
         public void AddSlice(PizzaSlice slice)
@@ -47,11 +33,7 @@ namespace PizzaChallenge
                 _cellKeys.Add(cell.CellId);
             }
             _slices.Add(slice);
-        }
-
-        public void AddInvalidSlice(PizzaSlice slice)
-        {
-            _invalidSlices.Add(slice.SliceId);
+            slice.SliceNum=_slices.Count;
         }
 
         public void RemoveSlice(PizzaSlice slice)
