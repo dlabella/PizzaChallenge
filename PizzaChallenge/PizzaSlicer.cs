@@ -15,6 +15,7 @@ namespace PizzaChallenge
         private readonly SliceStatistics _statisticsBuff;
         private readonly PizzaPlotter _plotter;
         private readonly HashSet<string> _invalidCells;
+        private List<Stack<PizzaSlice>> _sliceStack;
 
         public PizzaSlicer(PizzaOrder definition)
         {
@@ -26,6 +27,7 @@ namespace PizzaChallenge
             _plotter = new PizzaPlotter();
 
             _invalidCells = new HashSet<string>();
+            _sliceStack = new List<Stack<PizzaSlice>>();
         }
 
         public Pizza Slice()
@@ -63,45 +65,56 @@ namespace PizzaChallenge
 
         private bool SliceInternal(PizzaSlices slices, PizzaCell parentCell = null)
         {
-            if (parentCell != null)
+            int sliceIdx=0;
+            PizzaSlice currentSlice = null;
+            do
             {
-                parentCell.Visited = true;
-            }
-            var cellStart = GetFirstCellNotInSlice(slices);
-            if (cellStart == null)
-            {
-                System.Diagnostics.Debug.WriteLine("Dead End");
-                return false;
-            }
-            var validSlices = GetValidSlices(slices, cellStart).OrderByDescending(x => x.Area);
-            if (!validSlices.Any())
-            {
-                cellStart.Visited = true;
-                return false;
-            }
+                var cellStart = GetFirstCellNotInSlice();
+                if (cellStart == null)
+                {
+                    //
+                }
 
-            foreach (var slice in validSlices)
-            {
-                slices.AddSlice(slice);
-                _statistics.CurrentSliceId = slice.SliceId;
-                _statistics.AreaFilled = slices.Area;
-                if (slices.Area == _pizza.Area)
+                var validSlices = GetValidSlices(slices, cellStart).OrderByDescending(x => x.Area);
+                if (validSlices.Any())
                 {
-                    return true;
+                    var items = new Stack<PizzaSlice>(validSlices);
+                    _sliceStack.Add(items);
                 }
-                if (SliceInternal(slices, cellStart))
+
+                if (_sliceStack[_sliceStack.Count-1].TryPop(out var slice))
                 {
-                    return true;
+                    sliceIdx++;
+                    slice.SliceNum=sliceIdx;
+                    currentSlice = slice;
+                    slices.AddSlice(slice);
+                    foreach (var cellToSet in slice.GetCells())
+                    {
+                        cellToSet.Slice = sliceIdx;
+                    }
+                    if (slices.Area == _pizza.Area)
+                    {
+                        return true;
+                    }
                 }
-                slices.RemoveSlice(slice);
-            };
-            cellStart.Visited = false;
-            return false;
+                else
+                {
+                    foreach (var sliceToClear in _sliceStack[_sliceStack.Count-1])
+                    {
+                        foreach(var cellToClear in sliceToClear.GetCells())
+                        {
+                            cellToClear.Slice=null;
+                        }
+                    }
+                    _sliceStack.RemoveAt(_sliceStack.Count-1);
+                }
+            } while (_sliceStack.Count>0);
+            return true;
         }
 
-        private PizzaCell GetFirstCellNotInSlice(PizzaSlices slices)
+        private PizzaCell GetFirstCellNotInSlice()
         {
-            return _pizza.Cells.Items().FirstOrDefault(x => !slices.ContainsCellId(x.CellId) && !x.Visited);
+            return _pizza.Cells.Items().FirstOrDefault(x => x.Slice==null);
         }
 
         private IEnumerable<PizzaSlice> GetValidSlices(PizzaSlices slices, PizzaCell cellStart)

@@ -21,8 +21,24 @@ namespace PizzaChallenge
             _colorsRgb = new Dictionary<string, Color>();
             _colors.Add(defaultColorId, "255,255,255");
             _colorsRgb.Add(defaultColorId, Color.White);
+            GenearateColors();
         }
-
+        private void GenearateColors()
+        {
+            int i = 1;
+            _colors.Add("0", "rgb(255,255,255)");
+            for (var j = 0; j <= 50; j++)
+            {
+                for (var k = 0; k < 100; k++)
+                {
+                    var r = _random.Next(100) * 2;
+                    var g = _random.Next(100) * 2;
+                    var b = _random.Next(100) * 2;
+                    _colors.Add(i.ToString(), $"rgb({r},{g},{b})");
+                    i++;
+                }
+            }
+        }
         public void SetStyles(StringBuilder sb)
         {
             sb.AppendLine("<style>");
@@ -31,11 +47,8 @@ namespace PizzaChallenge
             {
                 for (var k = 0; k < 100; k++)
                 {
-                    var r = _random.Next(100) * 2;
-                    var g = _random.Next(100) * 2;
-                    var b = _random.Next(100) * 2;
-                    sb.Append($".c-{i} {{background-color:rgb(255,{r},{g},{b});}} ");
-                    sb.Append($".c-{i}-d {{background-color:rgb(255,{r},{g},{b}); border-style:dotted;}} ");
+                    sb.Append($".c-{i} {{background-color:{_colors[i.ToString()]});}} ");
+                    sb.Append($".c-{i}-d {{background-color:{_colors[i.ToString()]}); border-style:dotted;}} ");
                     i++;
                 }
             }
@@ -56,13 +69,18 @@ namespace PizzaChallenge
 
         public string Plot(PizzaSlices slices)
         {
+            AssignSliceDate(slices);
+
             StringBuilder html = new StringBuilder();
             html.AppendLine("<html>");
-            SetStyles(html);
+            //SetStyles(html);
             html.AppendLine("<body>");
             PlotPizzaSlices(html, slices);
             html.AppendLine("</body>");
             html.AppendLine("</html>");
+
+            UnassignSliceDate(slices);
+
             return html.ToString();
         }
 
@@ -153,7 +171,7 @@ namespace PizzaChallenge
                 for (var col = 0; col < cols; col++)
                 {
                     var currentCell = slices.Pizza.Cells[row, col];
-                    PlotPizzaCell(sb, currentCell, $"c-{currentCell.Slice}");
+                    PlotPizzaCell(sb, currentCell, currentCell.Slice ?? 0);
                 }
                 sb.Append("</tr>");
             }
@@ -167,7 +185,8 @@ namespace PizzaChallenge
             for (var col = 0; col < pizza.Columns; col++)
             {
                 var cell = pizza.Cells[currentRow, col];
-                PlotPizzaCell(sb, cell, $"c-{cell.Slice}");
+                //PlotPizzaCell(sb, cell, $"c-{cell.Slice}");
+                PlotPizzaCell(sb, cell, cell.Slice ?? 0);
             }
             sb.AppendLine("</tr>");
         }
@@ -175,6 +194,10 @@ namespace PizzaChallenge
         private void PlotPizzaCell(StringBuilder sb, PizzaCell cell, String classStyle)
         {
             sb.AppendLine($"<td><div class=\"{classStyle}\">{cell.Ingredient}</div></td>");
+        }
+        private void PlotPizzaCell(StringBuilder sb, PizzaCell cell, int slice)
+        {
+            sb.AppendLine($"<td><div style=\"background-color={_colors[slice.ToString()]}\">{cell.Ingredient}</div></td>");
         }
 
         private Color GetColorRgb(string sliceId)
