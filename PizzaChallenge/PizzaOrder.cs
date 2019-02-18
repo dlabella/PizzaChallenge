@@ -40,13 +40,18 @@ namespace PizzaChallenge
         public async Task WriteResult(Pizza pizza, string file)
         {
             StringBuilder sb = new StringBuilder();
-            var slices = pizza.Cells.Items().GroupBy(x => x.Slice).OrderBy(x => x.Key);
+            var slices = pizza.Cells.Items().Where(x => x.Slice != -1 && x.Slice != null).GroupBy(x => x.Slice);
             sb.AppendLine($"{slices.Count()}");
             foreach (var slice in slices)
             {
                 var cellMin = slice.Min();
                 var cellMax = slice.Max();
                 sb.AppendLine($"{cellMin.Row} {cellMin.Col} {cellMax.Row} {cellMax.Col}");
+            }
+            var finfo = new FileInfo(file);
+            if (!finfo.Directory.Exists)
+            {
+                finfo.Directory.Create();
             }
             await File.WriteAllTextAsync(file,sb.ToString());
         }

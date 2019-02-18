@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PizzaChallenge", "PizzaChal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PizzaChallenge.UnitTests", "PizzaChallenge.UnitTests\PizzaChallenge.UnitTests.csproj", "{1488E493-02AC-4078-A3BD-57A87EFEAA6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viewport", "Viewport\Viewport.csproj", "{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,37 +61,14 @@ Global
 		{1488E493-02AC-4078-A3BD-57A87EFEAA6B}.Release|x64.Build.0 = Release|Any CPU
 		{1488E493-02AC-4078-A3BD-57A87EFEAA6B}.Release|x86.ActiveCfg = Release|Any CPU
 		{1488E493-02AC-4078-A3BD-57A87EFEAA6B}.Release|x86.Build.0 = Release|Any CPU
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|ARM.ActiveCfg = Debug|ARM
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|ARM.Build.0 = Debug|ARM
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|ARM.Deploy.0 = Debug|ARM
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|ARM64.Build.0 = Debug|ARM64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|ARM64.Deploy.0 = Debug|ARM64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|x64.ActiveCfg = Debug|x64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|x64.Build.0 = Debug|x64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|x64.Deploy.0 = Debug|x64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|x86.ActiveCfg = Debug|x86
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|x86.Build.0 = Debug|x86
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Debug|x86.Deploy.0 = Debug|x86
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|Any CPU.ActiveCfg = Release|x86
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|ARM.ActiveCfg = Release|ARM
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|ARM.Build.0 = Release|ARM
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|ARM.Deploy.0 = Release|ARM
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|ARM64.ActiveCfg = Release|ARM64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|ARM64.Build.0 = Release|ARM64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|ARM64.Deploy.0 = Release|ARM64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|x64.ActiveCfg = Release|x64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|x64.Build.0 = Release|x64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|x64.Deploy.0 = Release|x64
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|x86.ActiveCfg = Release|x86
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|x86.Build.0 = Release|x86
-		{38D3AB51-ECDB-4D84-B38A-28183C8E0D84}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FC4127B-530F-4B42-9419-D0FA062B38D5}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PizzaChallenge
 {
@@ -10,14 +8,14 @@ namespace PizzaChallenge
         {
             return $"{row}-{col}";
         }
-        public string CellId {get; }
+        public string CellId { get; }
         public PizzaCell(int row, int col, char ingredient, int? slice = null)
         {
             Row = row;
             Col = col;
             Ingredient = ingredient;
             Slice = slice;
-            CellId= GetCellId(row,col);
+            CellId = GetCellId(row, col);
         }
         public int Row { get; }
         public int Col { get; }
@@ -27,14 +25,24 @@ namespace PizzaChallenge
         public int CompareTo(object obj)
         {
             var pizzaCell = obj as PizzaCell;
+            if (this.Row == pizzaCell.Row && this.Col == pizzaCell.Col)
+            {
+                return 0;
+            }
 
-            if(pizzaCell.Row + pizzaCell.Col > this.Row + this.Col)
+            if (this.Row < pizzaCell.Row ||
+               (this.Row == pizzaCell.Row && this.Col < pizzaCell.Col))
             {
                 return -1;
             }
-            else if (pizzaCell.Row + pizzaCell.Col == this.Row + this.Col)
+            else if (this.Row > pizzaCell.Row ||
+                    (this.Row == pizzaCell.Row && this.Col > pizzaCell.Col))
             {
-                return 0;
+                return 1;
+            }
+            else if (this.Row == pizzaCell.Row && this.Col<pizzaCell.Col)
+            {
+                return -1;
             }
             else
             {

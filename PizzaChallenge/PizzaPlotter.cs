@@ -11,6 +11,7 @@ namespace PizzaChallenge
         public Dictionary<string, Color> _colorsRgb;
         private Random _random;
         private readonly StringBuilder _queuedPlot;
+
         public PizzaPlotter()
         {
             _random = new Random();
@@ -18,19 +19,6 @@ namespace PizzaChallenge
             _colors = new Dictionary<string, string>();
             _colorsRgb = new Dictionary<string, Color>();
         }
-
-        //public string Plot(PizzaOrder pizzaDefinition)
-        //{
-        //    StringBuilder html = new StringBuilder();
-        //    html.AppendLine("<html>");
-        //    html.AppendLine("<body>");
-        //    PlotPizzaDefinition(html, pizzaDefinition);
-        //    html.AppendLine("<p>");
-        //    PlotPizzaTable(html, pizzaDefinition.Pizza);
-        //    html.AppendLine("</body>");
-        //    html.AppendLine("</html>");
-        //    return html.ToString();
-        //}
 
         public string Plot(Pizza pizza)
         {
@@ -43,17 +31,6 @@ namespace PizzaChallenge
             return html.ToString();
         }
 
-        //public string Plot(PizzaSlice slice)
-        //{
-        //    StringBuilder html = new StringBuilder();
-        //    html.AppendLine("<html>");
-        //    html.AppendLine("<body>");
-        //    PlotPizzaSlice(html, slice.PizzaCells);
-        //    html.AppendLine("</body>");
-        //    html.AppendLine("</html>");
-        //    return html.ToString();
-        //}
-
         public string Plot(PizzaSlices slices)
         {
             StringBuilder html = new StringBuilder();
@@ -65,89 +42,6 @@ namespace PizzaChallenge
             return html.ToString();
         }
 
-        public Bitmap PlotToBitmap(PizzaSlices slices)
-        {
-            var rows = slices.Pizza.Rows;
-            var cols = slices.Pizza.Columns;
-            Bitmap bmp=new Bitmap(rows, cols);
-            for (var row = 0; row < rows; row++)
-            {
-                for (var col = 0; col < cols; col++)
-                {
-                    var currentCell = slices.Pizza.Cells[row, col];
-                    if (slices.ContainsCellId(currentCell.CellId))
-                    {
-                        var slice = slices.GetSliceFromCell(currentCell);
-                        var color = GetColorRgb(slice.SliceId);
-                        bmp.SetPixel(row,col, color);
-                    }
-                    else
-                    {
-                        bmp.SetPixel(row, col, Color.White);
-                    }
-                }
-            }
-            return bmp;
-        }
-
-        
-
-        //public string Plot(IEnumerable<PizzaSlice> slices)
-        //{
-
-        //    StringBuilder html = new StringBuilder();
-        //    html.AppendLine("<html>");
-        //    html.AppendLine("<body>");
-        //    foreach (var slice in slices)
-        //    {
-        //        PlotPizzaSlice(html, slice.PizzaCells);
-        //    }
-        //    html.AppendLine("</body>");
-        //    html.AppendLine("</html>");
-        //    return html.ToString();
-        //}
-
-        //public string Plot(IEnumerable<PizzaCell> cells)
-        //{
-        //    StringBuilder html = new StringBuilder();
-        //    html.AppendLine("<html>");
-        //    html.AppendLine("<body>");
-        //    PlotPizzaSlice(html, cells);
-        //    html.AppendLine("</body>");
-        //    html.AppendLine("</html>");
-        //    return html.ToString();
-        //}
-
-        //public void EnqueuePlot(Pizza pizza)
-        //{
-        //    if (pizza != null)
-        //    {
-        //        PlotPizzaTable(_queuedPlot, pizza);
-        //        _queuedPlot.AppendLine("<p>");
-        //        _queuedPlot.AppendLine("<p>");
-        //    }
-        //}
-
-        //public string DequeuePlot()
-        //{
-        //    var html = new StringBuilder();
-        //    html.AppendLine("<html>");
-        //    html.AppendLine("<body>");
-        //    html.AppendLine(_queuedPlot.ToString());
-        //    html.AppendLine("</body>");
-        //    html.AppendLine("</html>");
-        //    return html.ToString();
-        //}
-
-        //private void PlotPizzaDefinition(StringBuilder sb, PizzaOrder definition)
-        //{
-        //    sb.AppendLine("****** SLICE DEFINITION *******<p>");
-        //    sb.AppendLine($"Max Cells:       <b>{definition.Requirements.SliceMaxCells}</b><p>");
-        //    sb.AppendLine($"Min Ingredients: <b>{definition.Requirements.SliceMinIngredients}</b><p>");
-        //    sb.AppendLine("*******************************<p>");
-
-        //}
-
         private void PlotPizzaTable(StringBuilder sb, Pizza pizza)
         {
             sb.AppendLine("<table>");
@@ -157,18 +51,6 @@ namespace PizzaChallenge
             }
             sb.AppendLine("</table>");
         }
-
-        //private void PlotPizzaSlice(StringBuilder sb, IEnumerable<PizzaCell> cells)
-        //{
-        //    sb.AppendLine("<table>");
-        //    var minRow = cells.Min(x => x.Row);
-        //    var maxRow = cells.Max(x => x.Row);
-        //    for (var row = minRow; row <= maxRow; row++)
-        //    {
-        //        PlotPizzaSliceRow(sb, row, cells);
-        //    }
-        //    sb.AppendLine("</table>");
-        //}
 
         private void PlotPizzaSlices(StringBuilder sb, PizzaSlices slices)
         {
@@ -182,10 +64,8 @@ namespace PizzaChallenge
                 for (var col = 0; col < cols; col++)
                 {
                     var currentCell = slices.Pizza.Cells[row, col];
-                    if (slices.ContainsCellId(currentCell.CellId))
-                    {
-                        var slice = slices.GetSliceFromCell(currentCell);
-                        var color = GetColor(slice.SliceId);
+                    if (currentCell.Slice != null && currentCell.Slice>=0){
+                        var color = GetColor(currentCell.Slice.Value.ToString());
                         PlotPizzaCell(sb, currentCell, color);
                     }
                     else
@@ -199,21 +79,6 @@ namespace PizzaChallenge
             sb.AppendLine("</table>");
         }
 
-        //private void PlotPizzaSliceRow(StringBuilder sb, int currentRow, IEnumerable<PizzaCell> cells)
-        //{
-        //    sb.AppendLine("<tr>");
-        //    var minCol = cells.Min(x => x.Col);
-        //    var maxCol = cells.Max(x => x.Col);
-        //    for (var col = minCol; col <= maxCol; col++)
-        //    {
-        //        var cell = cells.First(x => x.Col == col && x.Row == currentRow);
-        //        if (cell != null)
-        //        {
-        //            PlotPizzaCell(sb, cell);
-        //        }
-        //    }
-        //    sb.AppendLine("</tr>");
-        //}
         private void PlotPizzaRow(StringBuilder sb, int currentRow, Pizza pizza)
         {
             sb.AppendLine("<tr>");
@@ -248,29 +113,8 @@ namespace PizzaChallenge
                 var r = _random.Next(256);
                 var g = _random.Next(256);
                 var b = _random.Next(256);
-                rgb = $"{r},{g},{b}";
+                rgb = $"255,{r},{g},{b}";
                 _colors.Add(sliceId ?? "0", rgb);
-            }
-            return rgb;
-        }
-        private Color GetColorRgb(string sliceId)
-        {
-            Color rgb;
-            if (string.IsNullOrEmpty(sliceId))
-            {
-                rgb = Color.White;
-            }
-            else if (_colorsRgb.ContainsKey(sliceId ?? "0"))
-            {
-                rgb = _colorsRgb[sliceId ?? "0"];
-            }
-            else
-            {
-                var r = _random.Next(256);
-                var g = _random.Next(256);
-                var b = _random.Next(256);
-                rgb =Color.FromArgb(r,g,b);
-                _colorsRgb.Add(sliceId ?? "0", rgb);
             }
             return rgb;
         }
