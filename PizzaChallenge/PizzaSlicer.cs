@@ -37,7 +37,8 @@ namespace PizzaChallenge
 
             SlideStatisticsTime();
 
-            SliceInternal(slices, cts);
+            //SliceInternal(slices, cts);
+            DoSlice(cts);
 
             cts.Cancel();
 
@@ -53,6 +54,60 @@ namespace PizzaChallenge
                 Console.WriteLine($"Area Filled {_statistics.AreaFilled}");
 
                 SlideStatisticsTime();
+            }
+        }
+
+        private bool DoSlice(CancellationTokenSource cts)
+        {
+            var slices = new PizzaSlices(_pizza);
+            var sliceStack = new List<List<PizzaSlice>>();
+            var forward = true;
+            int sliceIndex = 0;
+            PizzaSlice currentSlice = null;
+            while (true)
+            {
+                if (cts.IsCancellationRequested) { return true; }
+
+                var startCell = GetFirstCellNotInSlice(slices);
+                if (startCell != null)
+                {
+                    var availableSlices = GetAvailableSlices(startCell);
+                    if (availableSlices.Any())
+                    {
+                        sliceStack.Add(availableSlices.OrderByDescending(x => x.Area).ToList());
+                    }
+                    else if (currentSlice!=null)
+                    {
+                        slices.RemoveSlice(currentSlice);
+
+                        if (sliceStack[sliceStack.Count - 1].Count(x => !x.Visited) == 0)
+                        {    
+                            sliceStack.RemoveAt(sliceStack.Count - 1);
+                            foreach (var item in sliceStack[sliceStack.Count - 1])
+                            {
+                                item.PizzaCells.ForEach(x =>
+                                {
+                                    x.Slice = null;
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (sliceStack.Count > 0)
+                {
+                    var slice = sliceStack[sliceStack.Count - 1].FirstOrDefault(x => !x.Visited);
+                    if (slice != null)
+                    {
+                        currentSlice=slice;
+                        slice.Visited = true;
+                        slices.AddSlice(slice, sliceIndex++);
+                    }
+                }
+                if (slices.Area == _pizza.Area)
+                {
+                    return true;
+                }
             }
         }
 

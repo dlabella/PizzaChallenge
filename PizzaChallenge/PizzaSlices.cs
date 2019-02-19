@@ -6,8 +6,8 @@ namespace PizzaChallenge
     public class PizzaSlices
     {
         List<PizzaSlice> _slices = new List<PizzaSlice>();
-        HashSet<string> _slicesId = new HashSet<string>();
-        public int Area { get;set;}
+        HashSet<string> _sliceIds = new HashSet<string>();
+        public int Area { get; set; }
         public Pizza Pizza { get; }
 
         public PizzaSlices(Pizza pizza)
@@ -17,11 +17,11 @@ namespace PizzaChallenge
 
         public void AddSlice(PizzaSlice slice, int? sliceIndex = null)
         {
-            if (!_slicesId.Contains(slice.SliceId))
+            if (!_sliceIds.Contains(slice.SliceId))
             {
-                Area+=slice.Area;
-                _slicesId.Add(slice.SliceId);
+                Area += slice.Area;
                 _slices.Add(slice);
+                _sliceIds.Add(slice.SliceId);
                 slice.PizzaCells.ForEach(item => item.Slice = sliceIndex);
             }
         }
@@ -29,8 +29,8 @@ namespace PizzaChallenge
         public void RemoveSlice(PizzaSlice slice)
         {
             _slices.Remove(slice);
+            _sliceIds.Remove(slice.SliceId);
             Area -= slice.Area;
-            _slicesId.Remove(slice.SliceId);
             slice.PizzaCells.ForEach(item => item.Slice = null);
         }
 

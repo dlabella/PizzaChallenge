@@ -17,5 +17,6 @@ namespace PizzaChallenge
         public string SliceId => $"{PizzaCells.Min().CellId}-{PizzaCells.Max().CellId}";
 
         public int Area => PizzaCells.Count;
+        public bool Visited { get;set;}
     }
 }

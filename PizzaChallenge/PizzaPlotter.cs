@@ -100,7 +100,7 @@ namespace PizzaChallenge
         private string GetColor(string sliceId)
         {
             string rgb = "";
-            if (string.IsNullOrEmpty(sliceId))
+            if (string.IsNullOrEmpty(sliceId) || sliceId=="-1")
             {
                 rgb = "255,255,255";
             }
@@ -113,7 +113,7 @@ namespace PizzaChallenge
                 var r = _random.Next(256);
                 var g = _random.Next(256);
                 var b = _random.Next(256);
-                rgb = $"255,{r},{g},{b}";
+                rgb = $"{r},{g},{b}";
                 _colors.Add(sliceId ?? "0", rgb);
             }
             return rgb;
