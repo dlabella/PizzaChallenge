@@ -61,37 +61,47 @@ namespace PizzaChallenge
         {
             var slices = new PizzaSlices(_pizza);
             var sliceStack = new List<List<PizzaSlice>>();
-            var forward = true;
             int sliceIndex = 0;
+            var forward = true;
+            var shouldMoveBack = false;
             PizzaSlice currentSlice = null;
-            while (true)
+            while (!cts.IsCancellationRequested)
             {
-                if (cts.IsCancellationRequested) { return true; }
+                PrintStatistics();
 
-                var startCell = GetFirstCellNotInSlice(slices);
-                if (startCell != null)
+                if (forward)
                 {
-                    var availableSlices = GetAvailableSlices(startCell);
-                    if (availableSlices.Any())
-                    {
-                        sliceStack.Add(availableSlices.OrderByDescending(x => x.Area).ToList());
-                    }
-                    else if (currentSlice!=null)
-                    {
-                        slices.RemoveSlice(currentSlice);
+                    var startCell = GetFirstCellNotInSlice(slices);
 
-                        if (sliceStack[sliceStack.Count - 1].Count(x => !x.Visited) == 0)
-                        {    
-                            sliceStack.RemoveAt(sliceStack.Count - 1);
-                            foreach (var item in sliceStack[sliceStack.Count - 1])
-                            {
-                                item.PizzaCells.ForEach(x =>
-                                {
-                                    x.Slice = null;
-                                });
-                            }
+                    if (startCell != null)
+                    {
+                        var availableSlices = GetAvailableSlices(startCell);
+                        if (availableSlices.Any())
+                        {
+                            sliceStack.Add(availableSlices.OrderByDescending(x => x.Area).ToList());
+                        }
+                        else
+                        {
+                            shouldMoveBack = true;
                         }
                     }
+                    else
+                    {
+                        shouldMoveBack = true;
+                    }
+                }
+
+                if (shouldMoveBack)
+                {
+                    if (currentSlice != null)
+                    {
+                        slices.RemoveSlice(currentSlice);
+                    }
+                    while (sliceStack[sliceStack.Count - 1].All(x => x.Visited))
+                    {
+                        MoveStackBack(slices, sliceStack);
+                    }
+                    forward = false;
                 }
 
                 if (sliceStack.Count > 0)
@@ -99,16 +109,46 @@ namespace PizzaChallenge
                     var slice = sliceStack[sliceStack.Count - 1].FirstOrDefault(x => !x.Visited);
                     if (slice != null)
                     {
-                        currentSlice=slice;
+                        currentSlice = slice;
                         slice.Visited = true;
                         slices.AddSlice(slice, sliceIndex++);
                     }
+                    forward = true;
+                    shouldMoveBack = false;
                 }
-                if (slices.Area == _pizza.Area)
+
+                _statistics.AreaFilled = slices.Area;
+                if (_pizza.Cells.Items().Count(x => x.Slice >= 0) == _pizza.Area)
                 {
                     return true;
                 }
             }
+            return false;
+        }
+
+        private static void MoveStackBack(PizzaSlices slices, List<List<PizzaSlice>> sliceStack)
+        {
+            sliceStack.RemoveAt(sliceStack.Count - 1);
+
+            foreach (var item in sliceStack[sliceStack.Count - 1])
+            {
+                item.PizzaCells.ForEach(x =>
+                {
+                    x.Slice = null;
+                });
+                slices.RemoveSlice(item);
+            }
+        }
+
+        private static void ClearVisitedSlices(PizzaSlices slices, List<List<PizzaSlice>> sliceStack)
+        {
+            sliceStack[sliceStack.Count - 1].ForEach(x =>
+            {
+                if (x.Visited)
+                {
+                    slices.RemoveSlice(x);
+                }
+            });
         }
 
         private bool SliceInternal(PizzaSlices slices, CancellationTokenSource cts)

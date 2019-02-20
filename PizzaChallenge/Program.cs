@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 
 namespace PizzaChallenge
@@ -10,14 +9,14 @@ namespace PizzaChallenge
         public static AutoResetEvent ars = new AutoResetEvent(false);
         static void Main(string[] args)
         {
-            cts = new CancellationTokenSource();
-            RunExampleChallenge();
+            //cts = new CancellationTokenSource();
+            //RunExampleChallenge();
             //cts = new CancellationTokenSource();
             //RunSmallChallenge();
             //cts = new CancellationTokenSource();
             //RunMediumChallenge();
-            //cts = new CancellationTokenSource();
-            //RunBigChallenge();
+            cts = new CancellationTokenSource();
+            RunBigChallenge();
 
             Console.WriteLine("Challenge completed!");
         }

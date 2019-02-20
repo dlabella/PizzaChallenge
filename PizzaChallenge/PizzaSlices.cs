@@ -28,10 +28,13 @@ namespace PizzaChallenge
 
         public void RemoveSlice(PizzaSlice slice)
         {
-            _slices.Remove(slice);
-            _sliceIds.Remove(slice.SliceId);
-            Area -= slice.Area;
-            slice.PizzaCells.ForEach(item => item.Slice = null);
+            if (_sliceIds.Contains(slice.SliceId))
+            {
+                _slices.Remove(slice);
+                _sliceIds.Remove(slice.SliceId);
+                Area -= slice.Area;
+                slice.PizzaCells.ForEach(item => item.Slice = null);
+            }
         }
 
         public IEnumerable<PizzaSlice> Slices => _slices.OrderByDescending(x => x.Area);
