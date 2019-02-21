@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Entities
 {
     public class PizzaSlices
     {

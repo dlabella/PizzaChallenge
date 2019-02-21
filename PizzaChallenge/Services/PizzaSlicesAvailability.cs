@@ -1,9 +1,9 @@
-﻿using System;
+﻿using PizzaChallenge.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Services
 {
     public class PizzaSlicesAvailability
     {

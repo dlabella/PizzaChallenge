@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using PizzaChallenge.Entities;
+using PizzaChallenge.Extensions;
+using System.Linq;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Services
 {
     public class ResultValidator
     {
@@ -12,7 +14,7 @@ namespace PizzaChallenge
 
         public bool Validate(Pizza pizza)
         {
-            var slices = pizza.Cells.Items().Where(x=>x.Slice!=-1 && x.Slice!=null).GroupBy(x => x.Slice);
+            var slices = pizza.Cells.All().Where(x=>x.Slice!=-1 && x.Slice!=null).GroupBy(x => x.Slice);
             foreach (var slice in slices)
             {
                 var t = 0;

@@ -1,4 +1,4 @@
-﻿namespace PizzaChallenge
+﻿namespace PizzaChallenge.Entities
 {
     public class SliceStatistics
     {

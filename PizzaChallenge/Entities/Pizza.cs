@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using System.Linq;
 using System;
 using System.Collections.Generic;
+using PizzaChallenge.Services;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Entities
 {
     public class Pizza : ICloneable
     {
@@ -26,15 +26,6 @@ namespace PizzaChallenge
 
         public int Rows => Cells.GetLength(0);
         public int Columns => Cells.GetLength(1);
-
-        //public void AddSlice(PizzaSlice slice)
-        //{
-        //    this._sliceCount++;
-        //    foreach (var cell in slice.PizzaCells)
-        //    {
-        //        this.Cells[cell.Row, cell.Col].Slice = this._sliceCount;
-        //    }
-        //}
 
         public async Task ParseAsync(StreamReader reader)
         {
@@ -71,20 +62,7 @@ namespace PizzaChallenge
         {
             Cells[row, col] = new PizzaCell(row, col, ingredient);
         }
-        //public PizzaCell GetFirstCellNotInSlice()
-        //{
-        //    for (var row = 0; row < Rows; row++)
-        //    {
-        //        for (var col = 0; col < Columns; col++)
-        //        {
-        //            if (Cells[row, col].Slice == null)
-        //            {
-        //                return Cells[row, col];
-        //            }
-        //        }
-        //    }
-        //    return null;
-        //}
+
         public object Clone()
         {
             var returnValue = new Pizza(this._requirements);

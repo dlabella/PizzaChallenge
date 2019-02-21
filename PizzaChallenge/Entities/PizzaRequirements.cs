@@ -1,4 +1,6 @@
-﻿namespace PizzaChallenge
+﻿using PizzaChallenge.Services;
+
+namespace PizzaChallenge.Entities
 {
     public class PizzaRequirements
     {

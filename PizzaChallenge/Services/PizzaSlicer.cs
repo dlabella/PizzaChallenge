@@ -1,53 +1,37 @@
-﻿using System;
+﻿using PizzaChallenge.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Services
 {
     public class PizzaSlicer
     {
         private readonly PizzaOrder _definition;
         private readonly PizzaRequirements _requirements;
         private readonly Pizza _pizza;
-        private readonly SliceStatistics _statistics;
         private readonly PizzaSlicesAvailability _slicesAvailability;
-        DateTime _targetStatisticsTime;
-        private const int _slideSeconds = 3;
+        private readonly PizzaSlicerStatistics _statistics;
 
         public PizzaSlicer(PizzaOrder definition)
         {
             _definition = definition;
             _pizza = _definition.Pizza;
             _requirements = _definition.Requirements;
-            _statistics = new SliceStatistics();
             _slicesAvailability = new PizzaSlicesAvailability(_requirements,_pizza);
-        }
-
-        private void SlideStatisticsTime()
-        {
-            _targetStatisticsTime = DateTime.Now.AddSeconds(_slideSeconds);
+            _statistics = new PizzaSlicerStatistics();
         }
 
         public Pizza Slice(CancellationTokenSource cts)
         {
             var slices = new PizzaSlices(_pizza);
-            SlideStatisticsTime();
             SliceInternal(cts);
             cts.Cancel();
-            PrintStatistics(true);
+
+            _statistics.ProcessStatistics(true);
 
             return _pizza;
-        }
-
-        private void PrintStatistics(bool force = false)
-        {
-            if (_targetStatisticsTime < DateTime.Now || force)
-            {
-                Console.WriteLine($"Area Filled {_statistics.AreaFilled}");
-                Console.WriteLine($"Best Area Filled {_statistics.BestAreaFilled}");
-                SlideStatisticsTime();
-            }
         }
 
         private bool SliceInternal(CancellationTokenSource cts)
@@ -63,7 +47,7 @@ namespace PizzaChallenge
             PizzaSlice currentSlice = null;
             while (!cts.IsCancellationRequested)
             {
-                PrintStatistics();
+                _statistics.ProcessStatistics();
 
                 if (next)
                 {
@@ -82,7 +66,7 @@ namespace PizzaChallenge
                     next = true;
                 }
 
-                _statistics.AreaFilled = slices.Area;
+                _statistics.SliceStatistics.AreaFilled = slices.Area;
                 if (slices.Area == _pizza.Area)
                 {
                     return true;

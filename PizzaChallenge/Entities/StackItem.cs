@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Entities
 {
     public class StackItem
     {

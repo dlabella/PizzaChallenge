@@ -1,46 +1,40 @@
-﻿using System.IO;
+﻿using PizzaChallenge.Extensions;
+using PizzaChallenge.Services;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Entities
 {
     public class PizzaOrder
     {
-        private Pizza _pizza;
-        private PizzaRequirements _requirements;
         public PizzaOrder()
         {
 
-            _requirements = new PizzaRequirements();
+            Requirements = new PizzaRequirements();
         }
 
         public PizzaOrder(PizzaRequirements requirements, Pizza pizza)
         {
 
-            _requirements = requirements;
-            _pizza = pizza;
+            Requirements = requirements;
+            Pizza = pizza;
         }
 
-        public Pizza Pizza
-        {
-            get { return _pizza; }
-        }
+        public Pizza Pizza { get; internal set; }
 
-        public PizzaRequirements Requirements
-        {
-            get { return _requirements; }
-        }
+        public PizzaRequirements Requirements{get;internal set; }
 
         public async Task WriteResult(string file)
         {
-            await WriteResult(_pizza, file);
+            await WriteResult(Pizza, file);
         }
 
         public async Task WriteResult(Pizza pizza, string file)
         {
             StringBuilder sb = new StringBuilder();
-            var slices = pizza.Cells.Items().Where(x => x.Slice != -1 && x.Slice != null).GroupBy(x => x.Slice);
+            var slices = pizza.Cells.All().Where(x => x.Slice != -1 && x.Slice != null).GroupBy(x => x.Slice);
             sb.AppendLine($"{slices.Count()}");
             foreach (var slice in slices)
             {
@@ -53,7 +47,7 @@ namespace PizzaChallenge
             {
                 finfo.Directory.Create();
             }
-            await File.WriteAllTextAsync(file,sb.ToString());
+            await File.WriteAllTextAsync(file, sb.ToString());
         }
 
         public async Task ReadRequest(string file)
@@ -63,10 +57,10 @@ namespace PizzaChallenge
             {
                 if (rdr.Peek() > 0)
                 {
-                    _requirements.Parse(await rdr.ReadLineAsync());
+                    Requirements.Parse(await rdr.ReadLineAsync());
                 }
-                _pizza = new Pizza(_requirements);
-                await _pizza.ParseAsync(rdr);
+                Pizza = new Pizza(Requirements);
+                await Pizza.ParseAsync(rdr);
             }
         }
     }

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using PizzaChallenge.Entities;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
-namespace PizzaChallenge
+namespace PizzaChallenge.Services
 {
     public class PizzaPlotter
     {

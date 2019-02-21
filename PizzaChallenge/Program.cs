@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PizzaChallenge.Entities;
+using PizzaChallenge.Services;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
