@@ -19,5 +19,6 @@ namespace PizzaChallenge
 
         public int Area => PizzaCells.Count;
         public bool Visited { get;set;}
+        public PizzaCell NextPizzaCell { get;set;}
     }
 }

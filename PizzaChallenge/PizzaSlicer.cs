@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace PizzaChallenge
 {
@@ -11,6 +10,7 @@ namespace PizzaChallenge
         private readonly PizzaOrder _definition;
         private readonly PizzaRequirements _requirements;
         private readonly Pizza _pizza;
+        private Pizza _bestSlicedPizza;
         private readonly SliceStatistics _statistics;
         private readonly PizzaCell[,] _pizzaCells;
 
@@ -21,6 +21,7 @@ namespace PizzaChallenge
         {
             _definition = definition;
             _pizza = _definition.Pizza;
+            _bestSlicedPizza = null;
             _requirements = _definition.Requirements;
             _statistics = new SliceStatistics();
             _pizzaCells = _pizza.Cells;
@@ -51,7 +52,7 @@ namespace PizzaChallenge
             if (_targetStatisticsTime < DateTime.Now || force)
             {
                 Console.WriteLine($"Area Filled {_statistics.AreaFilled}");
-
+                Console.WriteLine($"Best Area Filled {_statistics.BestAreaFilled}");
                 SlideStatisticsTime();
             }
         }
@@ -59,12 +60,13 @@ namespace PizzaChallenge
         private bool SliceInternal(CancellationTokenSource cts)
         {
             var slices = new PizzaSlices(_pizza);
-            var sliceStack = new List<List<PizzaSlice>>();
+            var sliceStack = new List<StackItem>();
             int sliceIndex = 0;
             var forward = true;
             var backward = false;
-            var startRow=0;
-            var startCol=0;
+            var startRow = 0;
+            var startCol = 0;
+            int bestAreaSlice = 0;
 
             PizzaSlice currentSlice = null;
             while (!cts.IsCancellationRequested)
@@ -77,24 +79,28 @@ namespace PizzaChallenge
                     backward = true;
                     if (startCell != null)
                     {
-                        startRow=startCell.Row;
-                        startCol=startCell.Col;
                         var availableSlices = GetAvailableSlicesAsync(startCell);
                         if (availableSlices.Any())
                         {
                             backward = false;
-                            sliceStack.Add(availableSlices.OrderByDescending(x => x.Area).ToList());
+                            sliceStack.Add(new StackItem(availableSlices.OrderByDescending(x => x.Area).ToList()));
                         }
                     }
                 }
 
                 if (backward)
                 {
+                    if (bestAreaSlice < slices.Area)
+                    {
+                        bestAreaSlice = slices.Area;
+                        _statistics.BestAreaFilled = bestAreaSlice;
+                    }
+
                     if (currentSlice != null)
                     {
                         slices.RemoveSlice(currentSlice);
                     }
-                    while (sliceStack[sliceStack.Count - 1].All(x => x.Visited))
+                    while (sliceStack[sliceStack.Count - 1].Slices.All(x => x.Visited))
                     {
                         MoveStackBack(slices, sliceStack);
                     }
@@ -103,12 +109,15 @@ namespace PizzaChallenge
 
                 if (sliceStack.Count > 0)
                 {
-                    var slice = sliceStack[sliceStack.Count - 1].FirstOrDefault(x => !x.Visited);
+                    var slice = sliceStack[sliceStack.Count - 1].Slices.FirstOrDefault(x => !x.Visited);
                     if (slice != null)
                     {
                         currentSlice = slice;
                         slice.Visited = true;
                         slices.AddSlice(slice, sliceIndex++);
+
+                        startRow = slice.NextPizzaCell.Row;
+                        startCol = slice.NextPizzaCell.Col;
                     }
                     forward = true;
                 }
@@ -116,17 +125,18 @@ namespace PizzaChallenge
                 _statistics.AreaFilled = slices.Area;
                 if (slices.Area == _pizza.Area)
                 {
+                    _bestSlicedPizza = _pizza;
                     return true;
                 }
             }
             return false;
         }
 
-        private void MoveStackBack(PizzaSlices slices, List<List<PizzaSlice>> sliceStack)
+        private void MoveStackBack(PizzaSlices slices, List<StackItem> sliceStack)
         {
             sliceStack.RemoveAt(sliceStack.Count - 1);
 
-            foreach (var item in sliceStack[sliceStack.Count - 1])
+            foreach (var item in sliceStack[sliceStack.Count - 1].Slices)
             {
                 item.PizzaCells.ForEach(x => x.Slice = null);
                 slices.RemoveSlice(item);
@@ -144,6 +154,7 @@ namespace PizzaChallenge
                         return _pizzaCells[row, col];
                     }
                 }
+                startCol = 0;
             }
             return null;
         }
@@ -166,7 +177,7 @@ namespace PizzaChallenge
             GetBottomRightSlices(cellStart, maxRow, minCol).ForEach(x => retVal.AddSlice(x));
             GetTopLeftSlices(cellStart, minRow, minCol).ForEach(x => retVal.AddSlice(x));
             GetTopRightSlices(cellStart, minRow, maxCol).ForEach(x => retVal.AddSlice(x));
-            
+
             if (retVal.Area == 0)
             {
                 cellStart.Slice = -1;
@@ -317,7 +328,7 @@ namespace PizzaChallenge
                     pizzaSlice.PizzaCells.Add(_pizza.Cells[row, col]);
                 }
             }
-
+            pizzaSlice.NextPizzaCell = _pizzaCells[cellStart.Row, maxCol];
             return pizzaSlice;
         }
     }

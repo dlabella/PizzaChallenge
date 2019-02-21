@@ -92,8 +92,8 @@ namespace PizzaChallenge
             returnValue._colIdx = this._colIdx;
             returnValue.DistinctIngredientsCount = this.DistinctIngredientsCount;
             returnValue.Cells = new PizzaCell[this.Rows, this.Columns];
-
-            for(var row = 0; row < this.Rows; row++)
+            
+            for (var row = 0; row < this.Rows; row++)
             {
                 for (var column = 0; column < this.Columns; column++)
                 {
@@ -102,7 +102,6 @@ namespace PizzaChallenge
                         new PizzaCell(row, column, currentCell.Ingredient, currentCell.Slice);
                 }
             }
-
             return returnValue;
         }
     }
